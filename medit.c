@@ -17,7 +17,7 @@ int verificaUser(char*nomeFicheiro, char *username){
 	}
 	while(fscanf(f,"%s", auxiliar)==1){
 		if(strcmp(auxiliar, username)==0){
-			printf("\nExiste nome\n");
+			return 1;
 		}
 	}
 	fclose(f);
@@ -27,15 +27,28 @@ int verificaUser(char*nomeFicheiro, char *username){
 
 
 int main(int argc, char**argv){
-	
-	if(argc!=3){
-		printf("\nErro de sintaxe: executavel nome_ficheiro username\n");
-		exit(0);
-	}
 	char username[8];
-	verificaUser(argv[1], argv[2]); 	
+	if(argc!=3){
+		fprintf(stderr, "\nErro de sintaxe: executavel nome_ficheiro username\n");
+	}
+	else{
+		if(strcmp(argv[1], "medit.db")==0){
+			if((verificaUser("medit.db", argv[2]))==1)
+				printf("\nAcesso permitido\n");
+			else
+				printf("\nAcesso negado\n");
+		}
+		else{
+			if(strcmp(argv[1], "settings")==0){
+				if((verificaUser("medit.db", argv[2]))==1){
+					fork();
+				}
+				else{
+					fprintf(stderr, "\nO username nao tem permissoes para entrar nas settings\n");
+				}
+			}
+	}	
 	exit(0);
-	//ola
 }
 
 
