@@ -27,13 +27,14 @@ int verificaUser(char*nomeFicheiro, char *username){
 
 
 int main(int argc, char**argv){
-	
+	char username[8];
 	if(argc!=3){
 		printf("\nErro de sintaxe: executavel nome_ficheiro username\n");
-		exit(0);
 	}
-	char username[8];
-	verificaUser(argv[1], argv[2]); 	
+	else{
+		verificaUser(argv[1], argv[2]);
+	}
+	 	
 	exit(0);
 	//ola
 }
