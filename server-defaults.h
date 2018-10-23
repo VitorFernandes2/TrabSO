@@ -5,4 +5,8 @@
 
 #define MEDIT_TIMEOUT 10
 #define MEDIT_MAXUSERS 3
+#define MEDIT_MAXLINES 15
+#define MEDIT_MAXCOLUMNS 45
+
+void settings();
 
