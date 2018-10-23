@@ -18,6 +18,7 @@
         char bd_users[50];
         int max_users;
         //dúvida na parte das named pipes 
+        //fazer a parte do nome da base de dados
     }server;
 
     void settings();

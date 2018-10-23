@@ -10,5 +10,5 @@ void settings(){
     //Fazer printf da variável de nome da base de dados
     printf("O numero de colunas de cada documento e %d",MEDIT_MAXUSERS);
     //Fazer printf do número de named piped da interação
-    //Fazer printf do nome da pipe principal
+    //Fazer printf do nome da pipe principal 
 }
