@@ -10,6 +10,7 @@
 #define MEDIT_MAXUSERS 3
 #define MEDIT_MAXLINES 15
 #define MEDIT_MAXCOLUMNS 45
+#define MEDIT_FICHEIRO "medit.db"
 
     typedef struct {
         //criação de variáveis para as definições caso haja definições novas
@@ -18,7 +19,6 @@
         char bd_users[50];
         int max_users;
         //dúvida na parte das named pipes 
-        //fazer a parte do nome da base de dados
     }server;
 
     void settings();
