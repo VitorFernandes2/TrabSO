@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -24,8 +23,6 @@ int verificaUser(char*nomeFicheiro, char *username){
 	fclose(f);
 	return 0;
 }
-
-
 
 int main(int argc, char**argv){
 	char username[8];
