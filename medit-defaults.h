@@ -1,3 +1,6 @@
+#ifndef MEDIT_DEFAULTS_H
+#define MEDIT_DEFAULTS_H
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -6,7 +9,10 @@
 #define MEDIT_MAXLINES 15
 #define MEDIT_MAXCOLUMNS 45
 
-typedef struct {
-	
+    typedef struct {
+        
 
-}documento;
+    }documento;
+
+    void settings();
+#endif
