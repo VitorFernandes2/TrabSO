@@ -30,7 +30,6 @@ int main(int argc, char**argv){
 		printf("\nErro de sintaxe: executavel nome_ficheiro username\n");
 	}
 	else{
-<<<<<<< HEAD
 		if(strcmp(argv[1], "medit.db")==0){
 			if((verificaUser("medit.db", argv[2]))==1)
 				printf("\nAcesso permitido\n");
@@ -46,15 +45,6 @@ int main(int argc, char**argv){
 					fprintf(stderr, "\nO username nao tem permissoes para entrar nas settings\n");
 				}
 			}
-		printf(" ");
 	}	
 	exit(0);
 }
-=======
-		verificaUser(argv[1], argv[2]);
-	}
-	 	
-	exit(0);
-	//ola
-}
->>>>>>> 06fd3f1ef944ef62762c48948cb2158593a43aeb
