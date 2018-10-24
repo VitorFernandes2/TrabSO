@@ -21,7 +21,7 @@
         //dúvida na parte das named pipes 
     }server;
 
-    void settings();
+    int settings();
 
 #endif
 

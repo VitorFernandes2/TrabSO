@@ -2,23 +2,24 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "medit-defaults.h"
-#include "server-defaults.h"
-#include "client-defaults.h"
+#include "fich_h/medit-defaults.h"
+#include "fich_h/server-defaults.h"
+#include "fich_h/client-defaults.h"
 
 
-int verificaUser(char*nomeFicheiro, char *username){
-
+int verificaUser(char *nomeFicheiro, char *username, char *exe){
+	int i=0;
 	FILE *f;
-	char auxiliar[8];
+	char auxiliar[9];
 	if((f=fopen(nomeFicheiro,"r"))==NULL){
-		fprintf(stderr, "ERRO: erro ao abrir o ficheiro\n");
+		fprintf(stderr, "%s: erro ao abrir o ficheiro\n",exe);
 		return -1;
 	}
-	while(fscanf(f,"%s", auxiliar)==1){
+	while(fscanf(f,"%s",auxiliar)==1){	
 		if(strcmp(auxiliar, username)==0){
-			printf("\nExiste nome\n");
+			return 1;
 		}
+		i++;		
 	}
 	fclose(f);
 	return 0;
@@ -26,25 +27,25 @@ int verificaUser(char*nomeFicheiro, char *username){
 
 int main(int argc, char**argv){
 	char username[8];
-	if(argc!=3){
-		printf("\nErro de sintaxe: executavel nome_ficheiro username\n");
+	if(argc < 3 || argc > 4){
+		fprintf(stderr,"%s: Comando inexistente\n",argv[0]);
 	}
 	else{
 		if(strcmp(argv[1], "medit.db")==0){
-			if((verificaUser("medit.db", argv[2]))==1)
-				printf("\nAcesso permitido\n");
+			if((verificaUser("fich_db/medit.db", argv[2],argv[0]))==1)
+				printf("Acesso permitido\n");
 			else
-				printf("\nAcesso negado\n");
+				printf("Acesso negado\n");
 		}
 		else{
-			if(strcmp(argv[1], "settings")==0){
-				if((verificaUser("medit.db", argv[2]))==1){
-					fork();
-				}
-				else{
-					fprintf(stderr, "\nO username nao tem permissoes para entrar nas settings\n");
-				}
+			if(strcmp(argv[1], "server")==0){
+				if(strcmp(argv[2],"settings")==0){
+					if(verificaUser("fich_db/admins.txt", argv[3], argv[0])==1){
+						//fazer o comando de server
+					}
+				}				
 			}
+		}
 	}	
 	exit(0);
 }
