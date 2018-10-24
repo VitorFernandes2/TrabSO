@@ -10,39 +10,15 @@
 
 int busca_ambiente(char *argv,server *server){ //função que vai buscar as variáveis de ambiente
     if(getenv("MEDIT_FICHEIRO")==NULL){
-        fprintf(stderr,"%s: Falta a variável de ambiente MEDIT_FICHEIRO",argv);
-        return -1;
+        if(putenv("MEDIT_FICHEIRO=fich_db/medit.db")<0){
+            fprintf(stderr,"Ocorreu um erro\n");
+        }
+        else{
+            server->MEDIT_FICHEIRO=getenv("MEDIT_FICHEIRO");
+        }
     }
     else{
         server->MEDIT_FICHEIRO=getenv("MEDIT_FICHEIRO");
-    }
-    if(getenv("MEDIT_TIMEOUT")==NULL){
-        fprintf(stderr,"%s: Falta a variável de ambiente MEDIT_TIMEOUT",argv);
-        return -1;
-    }
-    else{
-        server->MEDIT_TIMEOUT=atoi(getenv("MEDIT_TIMEOUT"));
-    }
-    if(getenv("MEDIT_MAXUSERS")==NULL){
-        fprintf(stderr,"%s: Falta a variável de ambiente MEDIT_MAXUSERS",argv);
-        return -1;
-    }
-    else{
-        server->MEDIT_MAXUSERS=atoi(getenv("MEDIT_MAXUSERS"));
-    }
-    if(getenv("MEDIT_MAXLINES")==NULL){
-        fprintf(stderr,"%s: Falta a variável de ambiente MEDIT_MAXLINES",argv);
-        return -1;
-    }
-    else{
-        server->MEDIT_MAXLINES=atoi(getenv("MEDIT_MAXLINES"));
-    }
-    if(getenv("MEDIT_MAXCOLUMNS")==NULL){
-        fprintf(stderr,"%s: Falta a variável de ambiente MEDIT_MAXCOLUMNS",argv);
-        return -1;
-    }
-    else{
-        server->MEDIT_MAXCOLUMNS=atoi(getenv("MEDIT_MAXCOLUMNS"));
     }
     return 0;
 }
@@ -78,6 +54,7 @@ int main(int argc, char *argv[])
     else{
         if(verifica_user(server.MEDIT_FICHEIRO,argv[1],argv[0])==1){
             printf("Ola %s\n",argv[1]);
+            //fazer interface gráfica
         }
         else{
             fprintf(stderr,"%s: Esse utilizador nao existe\n",argv[1]);
