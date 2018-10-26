@@ -14,4 +14,6 @@ void documento(char *user, server *server);
 
 void cabecalho(char *user,server *server);
 
+void corpo(server *server);
+
 #endif

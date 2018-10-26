@@ -22,7 +22,7 @@ void documento(char *user, server *server){
     cbreak();
     keypad(stdscr, TRUE);
     cabecalho(user,server);
-    corpo();
+    corpo(server);
     ch = getch();
     endwin();
 }
@@ -33,7 +33,7 @@ void cabecalho(char *user,server *server){
 
     //INICIO
     mvaddch(0, 0, ACS_ULCORNER);
-    while(posx < server->MEDIT_MAXCOLUMNS + 1){
+    while(posx < server->MEDIT_MAXCOLUMNS + 7){
         mvaddch(0, posx, ACS_HLINE);
         refresh(); 
         posx++;
@@ -49,7 +49,7 @@ void cabecalho(char *user,server *server){
     //FUNDO
     mvaddch(2, 0, ACS_LLCORNER);
     posx = 1;
-    while(posx < server->MEDIT_MAXCOLUMNS + 1){
+    while(posx < server->MEDIT_MAXCOLUMNS + 7){
         mvaddch(2, posx, ACS_HLINE);
         refresh(); 
         posx++;
@@ -57,15 +57,44 @@ void cabecalho(char *user,server *server){
     mvaddch(2, posx, ACS_LRCORNER);     
 }
 
-void corpo(){
-    int posx; //variáveis de posição
-    mvaddch(0, 0, ACS_ULCORNER);
-    mvaddch(1, 0, ACS_VLINE);
-    posx=1;
-    while(posx < server->MEDIT_MAXCOLUMNS + 1){
-        mvaddch(0, posx, ACS_HLINE);
+void corpo(server *server){
+    int posx,posy,i; //variáveis de posição
+    i = 0;
+    mvaddch(4, 0, ACS_ULCORNER);
+    posx = 1;
+    
+    //INICIO
+    while(posx < server->MEDIT_MAXCOLUMNS + 7){
+        mvaddch(4, posx, ACS_HLINE);
         refresh(); 
         posx++;
     }
-    mvaddch(0, posx, ACS_URCORNER);    
+    mvaddch(4, posx, ACS_URCORNER); 
+    mvaddch(4, 4, ACS_TTEE);
+    mvaddch(4, 6, ACS_TTEE);
+
+    //BASE
+    posy = 5;
+    while(posy < server->MEDIT_MAXLINES){
+        mvprintw(posy, 1, "%d", i);
+        mvaddch(posy, 4, ACS_VLINE);
+        mvaddch(posy, 6, ACS_VLINE);
+        mvaddch(posy, 0, ACS_VLINE);
+        mvaddch(posy, posx, ACS_VLINE);
+        refresh(); 
+        i++;
+        posy++;
+    } 
+
+    //FIM
+    posx=0;
+    while(posx < server->MEDIT_MAXCOLUMNS + 7){
+        mvaddch(posy, posx, ACS_HLINE);
+        refresh(); 
+        posx++;
+    }
+    mvaddch(posy, 0, ACS_LLCORNER);
+    mvaddch(posy, posx, ACS_LRCORNER); 
+    mvaddch(posy, 6, ACS_BTEE);
+    mvaddch(posy, 4, ACS_BTEE);
 }
