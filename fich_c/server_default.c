@@ -7,6 +7,7 @@
 /*            Imports           */
 /*------------------------------*/
 #include "../fich_h/server_default.h"
+#include "../fich_h/medit_default.h"
 /*------------------------------*/
 
 int verifica_user(char *nomeFicheiro, char *username, char *exe){
@@ -25,12 +26,19 @@ int verifica_user(char *nomeFicheiro, char *username, char *exe){
 	return 0;
 }
 
-int busca_ambiente(char *argv,server *server,char *exe){ //função que vai buscar as variáveis de ambiente se existirem
+void busca_ambiente(server *server){ //função que vai buscar as variáveis de ambiente se existirem
     if(getenv("MEDIT_FICHEIRO")==NULL){
         server->MEDIT_FICHEIRO=MEDIT_FICHEIRO_V;
     }
     else{
         server->MEDIT_FICHEIRO=getenv("MEDIT_FICHEIRO");
+    }
+
+    if(getenv("MEDIT_NAME_PIPE_PRINCI")==NULL){
+        server->MEDIT_NAME_PIPE_PRINCI=MEDIT_NAME_PIPE_PRINCI_V;
+    }
+    else{
+        server->MEDIT_NAME_PIPE_PRINCI=getenv("MEDIT_NAME_PIPE_PRINCI");
     }
 
     if(getenv("MEDIT_MAXUSERS")==NULL){
@@ -53,5 +61,11 @@ int busca_ambiente(char *argv,server *server,char *exe){ //função que vai busc
     else{
         server->MEDIT_MAXCOLUMNS=atoi(getenv("MEDIT_MAXCOLUMNS"));
     }
-    return 0;
+
+    if(getenv("MEDIT_NUM_PIPES")==NULL){
+        server->MEDIT_NUM_PIPES=MEDIT_NUM_PIPES_V;
+    }
+    else{
+        server->MEDIT_NUM_PIPES=atoi(getenv("MEDIT_NUM_PIPES"));
+    }
 }
