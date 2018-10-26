@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <ncurses.h>
 
 /*------------------------------*/
 /*            Imports           */
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
     char *var_nome=NULL;
     int i;
     server server;
+
     if(argc==1){
         fprintf(stderr,"%s: Falta de comandos\n",argv[0]);
         exit(-1);
@@ -27,8 +29,7 @@ int main(int argc, char *argv[])
                 var_nome = optarg;
                 busca_ambiente(&server);
                 if(verifica_user(server.MEDIT_FICHEIRO,var_nome,argv[0])==1){
-                    printf("Ola %s\n",var_nome);
-                    //fazer interface gráfica
+                    documento(var_nome, &server);
                 }
                 else{
                     fprintf(stderr,"%s: Esse utilizador nao existe\n",argv[0]);
