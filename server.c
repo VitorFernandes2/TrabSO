@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
@@ -20,7 +22,6 @@ int main(int argc, char *argv[]){
 	char cline[20]; 
 	char lixo;
 	char *user,hostname[20];
-	int ret=0;
 	user=getenv("USER");
 	gethostname(hostname,20);
 	do{
@@ -37,15 +38,16 @@ int main(int argc, char *argv[]){
 		fflush(stdin);
 		scanf("%s", cline);
 
-		if(strcmp(cline, "settings")==0){
-			ret=0;
+		if(strcmp(cline, "settings")==0){		
 			busca_ambiente(&server);
 			settings(&server);
 			fflush(stdout);
 		}
 		else
-			ret=-1;			
-	}while(ret==0);
+			if(strcmp(cline, "shutdown")!=0){			
+				printf("%s: comando nao disponivel\n", cline);	
+			}		
+	}while(strcmp(cline, "shutdown")!=0);
 	
 	exit(0);
 }
