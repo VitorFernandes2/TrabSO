@@ -14,8 +14,10 @@
 
 void documento(char *user, server *server){
     int nrow, ncol, posx, posy, oposx, oposy;
-    int ch;
     char c;
+    int ch, token; 
+    //A var. token serve para alternar entre modo edição de linha
+    //e modo navegação de texto
 
     initscr();
     clear();
@@ -27,13 +29,35 @@ void documento(char *user, server *server){
     cabecalho(user,server);
     corpo(server);
 
-    //Inicio da leitura do teclado
-    c = mvinch(5, 7);
-    mvprintw(5, 7, "%c", c); 
+    //Inicio da leitura do teclado 
+    c = mvinch(posy, posx);
+    posx = 7;
+    posy = 5;
+    move_cursor(&posx, &posy);
+
     do{
         ch = getch();
-
-        //Fazer if's
+        posx = 7;
+        if(ch == KEY_DOWN){
+            if(posy < server->MEDIT_MAXLINES + 4){
+                posy++;
+                move_cursor(&posx, &posy);
+            }                
+        }
+        if(ch == KEY_UP){
+            if(posy > 5){
+                posy--;
+                move_cursor(&posx, &posy);
+            }
+        }
+        if(ch==10){ //ENTER  
+            mvprintw(posy, 5,">");
+            move_cursor(&posx, &posy);          
+            teclas(&posx, &posy, server); 
+            mvprintw(posy, 5," ");
+            posx=7;
+            move_cursor(&posx, &posy); 
+        }
     }while(ch != 27);
 
     adeus(user, server);
@@ -47,7 +71,7 @@ void cabecalho(char *user,server *server){
 
     //INICIO
     mvaddch(0, 0, ACS_ULCORNER);
-    while(posx < server->MEDIT_MAXCOLUMNS + 7){
+    while(posx < server->MEDIT_MAXCOLUMNS + 8){
         mvaddch(0, posx, ACS_HLINE);
         refresh(); 
         posx++;
@@ -63,7 +87,7 @@ void cabecalho(char *user,server *server){
     //FUNDO
     mvaddch(2, 0, ACS_LLCORNER);
     posx = 1;
-    while(posx < server->MEDIT_MAXCOLUMNS + 7){
+    while(posx < server->MEDIT_MAXCOLUMNS + 8){
         mvaddch(2, posx, ACS_HLINE);
         refresh(); 
         posx++;
@@ -78,7 +102,7 @@ void corpo(server *server){
     posx = 1;
     
     //INICIO
-    while(posx < server->MEDIT_MAXCOLUMNS + 7){
+    while(posx < server->MEDIT_MAXCOLUMNS + 8){
         mvaddch(4, posx, ACS_HLINE);
         refresh(); 
         posx++;
@@ -109,7 +133,7 @@ void corpo(server *server){
 
     //FIM
     posx=0;
-    while(posx < server->MEDIT_MAXCOLUMNS + 7){
+    while(posx < server->MEDIT_MAXCOLUMNS + 8){
         mvaddch(posy, posx, ACS_HLINE);
         refresh(); 
         posx++;
@@ -152,4 +176,48 @@ void adeus(char *user, server *server){
     mvaddch(2, posx, ACS_LRCORNER); 
     refresh();
     usleep(1000000);
+}
+
+void teclas(int *posx, int *posy, server *server){
+    int ch;
+    do{
+        ch = getch();
+        if(ch == KEY_LEFT){
+            if((*posx) > 7){
+                (*posx)--;
+                move_cursor(posx, posy);
+            }
+        }
+        if(ch == KEY_RIGHT){
+            if((*posx) < server->MEDIT_MAXCOLUMNS + 6){
+                (*posx)++;
+                move_cursor(posx, posy);
+            }
+        }
+        if(ch == KEY_DC){
+            delete_linha(posx,posy,server);
+        }
+        if(ch >= 32 && ch <= 126){ //Entrada de números,letras e alguns char especiais            
+            mvprintw((*posy), (*posx), "%c", ch);                
+            if((*posx)< server->MEDIT_MAXCOLUMNS + 6){
+                (*posx)++;
+            }             
+        }
+    }while(ch != 27 && ch != 10);    
+}
+
+void move_cursor(int *posx, int *posy){
+    char c;
+    c = mvinch((*posy), (*posx));
+}
+
+void delete_linha(int *posx, int *posy, server *server){
+    int i;
+    char c;
+    for(i = (*posx) + 1; i < server->MEDIT_MAXCOLUMNS + 6; i++){
+        c = mvinch((*posy), i + 1);
+        mvprintw((*posy), i, "%c", c);
+    }
+    mvprintw((*posy), i, " "); 
+    c = mvinch((*posy), (*posx));
 }
