@@ -197,11 +197,16 @@ void teclas(int *posx, int *posy, server *server){
         if(ch == KEY_DC){
             delete_linha(posx,posy,server);
         }
+        if(ch == KEY_BACKSPACE){
+            backspace(posx,posy,server);
+        }
         if(ch >= 32 && ch <= 126){ //Entrada de números,letras e alguns char especiais            
-            mvprintw((*posy), (*posx), "%c", ch);                
-            if((*posx)< server->MEDIT_MAXCOLUMNS + 6){
-                (*posx)++;
-            }             
+            if(valida_texto(posx,posy,server)==1){
+                mvprintw((*posy), (*posx), "%c", ch);                
+                if((*posx)< server->MEDIT_MAXCOLUMNS + 6){
+                    (*posx)++;
+                } 
+            }                        
         }
     }while(ch != 27 && ch != 10);    
 }
@@ -219,5 +224,39 @@ void delete_linha(int *posx, int *posy, server *server){
         mvprintw((*posy), i, "%c", c);
     }
     mvprintw((*posy), i, " "); 
-    c = mvinch((*posy), (*posx));
+    move_cursor(posx, posy);
+}
+
+void backspace(int *posx, int *posy, server *server){
+    int i;
+    char c;
+    if((*posx)>7){
+        c = mvinch((*posy),(*posx));
+        mvprintw((*posy), (*posx) - 1, "%c", c);
+        for(i = (*posx); i < server->MEDIT_MAXCOLUMNS + 6; i++){
+            c = mvinch((*posy), i + 1);
+            mvprintw((*posy), i, "%c", c);
+        }
+        mvprintw((*posy), i, " ");
+        (*posx)--;
+        move_cursor(posx, posy);
+    }    
+}
+
+int valida_texto(int *posx, int *posy, server *server){
+    int i;
+    char c;
+
+    c = mvinch((*posy),server->MEDIT_MAXCOLUMNS + 6);
+    if(c == ' '){
+        for(i = server->MEDIT_MAXCOLUMNS + 6; i > (*posx); i--){
+            c = mvinch((*posy), i-1);
+            mvprintw((*posy), i, "%c", c);
+        }
+        move_cursor(posx, posy);
+        return 1;
+    }
+    else
+        move_cursor(posx, posy);
+    return 0;
 }

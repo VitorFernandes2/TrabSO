@@ -17,5 +17,7 @@ void adeus(char *user, server *server);
 void teclas(int *posx, int *posy, server *server);
 void move_cursor(int *posx, int *posy);
 void delete_linha(int *posx, int *posy, server *server);
+void backspace(int *posx, int *posy, server *server);
+int valida_texto(int *posx, int *posy, server *server);
 
 #endif
