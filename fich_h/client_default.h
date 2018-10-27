@@ -11,9 +11,8 @@
 #include "server_default.h"
 
 void documento(char *user, server *server);
-
 void cabecalho(char *user,server *server);
-
 void corpo(server *server);
+void adeus(char *user, server *server);
 
 #endif
