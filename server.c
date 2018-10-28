@@ -24,6 +24,15 @@ int main(int argc, char *argv[]){
 	char *user,hostname[20];
 	user=getenv("USER");
 	gethostname(hostname,20);
+	int tamArgc;
+
+	if(argc!=1){
+		for(tamArgc=1; tamArgc<argc; tamArgc++){
+			fprintf(stderr, "\n%s: comando invalido", argv[tamArgc]);
+		}
+		fprintf(stderr, "\nSintaxe: executavel\n");
+		exit(-1);
+	}	
 	do{
 		printf("\nServidor:");
 		printf("\nsettings");
