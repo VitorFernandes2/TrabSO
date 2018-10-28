@@ -277,7 +277,7 @@ void escape(int *posy, char *linha, server *server){
     char c, *copia;
     copia=linha;
     e=0;
-    for(i=7; i<server->MEDIT_MAXCOLUMNS + 6; i++){
+    for(i=7; i<server->MEDIT_MAXCOLUMNS + 7; i++){
         mvprintw((*posy), i, "%c", copia[e]);
         e++;
     }
@@ -288,7 +288,7 @@ void apanha_linha(int *posy, char *linha, server *server){
     char c, *copia;
     copia = linha;  
     e=0;   
-    for (i = 7; i < server->MEDIT_MAXCOLUMNS + 6; i++){        
+    for (i = 7; i < server->MEDIT_MAXCOLUMNS + 7; i++){        
         c = mvinch((*posy), i);
         copia[e]=c;
         e++; 

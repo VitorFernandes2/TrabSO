@@ -52,15 +52,17 @@ void busca_ambiente(server *server){ //função que vai buscar as variáveis de 
         server->MEDIT_MAXLINES=MEDIT_MAXLINES_V;
     }
     else{
-        server->MEDIT_MAXLINES=atoi(getenv("MEDIT_MAXLINES"));
+        if(atoi(getenv("MEDIT_MAXLINES"))<1000)        
+            server->MEDIT_MAXLINES=atoi(getenv("MEDIT_MAXLINES"));
+        else
+            server->MEDIT_MAXLINES=999;
     }
 
     if(getenv("MEDIT_MAXCOLUMNS")==NULL){
         server->MEDIT_MAXCOLUMNS=MEDIT_MAXCOLUMNS_V;
     }
-    else{
-        if(atoi(getenv("MEDIT_MAXCOLUMNS"))<1000)        
-            server->MEDIT_MAXCOLUMNS=atoi(getenv("MEDIT_MAXCOLUMNS"));
+    else{     
+        server->MEDIT_MAXCOLUMNS=atoi(getenv("MEDIT_MAXCOLUMNS"));
     }
 
     if(getenv("MEDIT_NUM_PIPES")==NULL){
