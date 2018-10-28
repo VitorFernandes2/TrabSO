@@ -59,7 +59,8 @@ void busca_ambiente(server *server){ //função que vai buscar as variáveis de 
         server->MEDIT_MAXCOLUMNS=MEDIT_MAXCOLUMNS_V;
     }
     else{
-        server->MEDIT_MAXCOLUMNS=atoi(getenv("MEDIT_MAXCOLUMNS"));
+        if(atoi(getenv("MEDIT_MAXCOLUMNS"))<1000)        
+            server->MEDIT_MAXCOLUMNS=atoi(getenv("MEDIT_MAXCOLUMNS"));
     }
 
     if(getenv("MEDIT_NUM_PIPES")==NULL){

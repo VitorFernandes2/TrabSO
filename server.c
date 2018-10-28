@@ -8,13 +8,22 @@
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
 
+void limpa(){
+	printf("\n\n\n\n\n\n\n\n\n\n\n");
+}
+
 void settings(server *server){
+	int c;
+	limpa();
 	printf("\nNumero maximo de linhas: %d", server->MEDIT_MAXLINES);
 	printf("\nNumero maximo de colunas: %d", server->MEDIT_MAXCOLUMNS);
 	printf("\nNome do ficheiro da base de dados: %s", server->MEDIT_FICHEIRO);
 	printf("\nNumero maximo de users a editar: %d", server->MEDIT_MAXUSERS);
 	printf("\nNumero de pipes: %d", server->MEDIT_NUM_PIPES);
 	printf("\nO nome da named pipe principal e: %s\n",server->MEDIT_NAME_PIPE_PRINCI);
+	printf("\nClique numa tecla para sair...");
+	c=getchar();
+	c=getchar();
 }
 
 int main(int argc, char *argv[]){
@@ -34,6 +43,7 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}	
 	do{
+		limpa();
 		printf("\nServidor:");
 		printf("\nsettings");
 		printf("\nload <filename>");
