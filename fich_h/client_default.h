@@ -19,5 +19,7 @@ void move_cursor(int *posx, int *posy);
 void delete_linha(int *posx, int *posy, server *server);
 void backspace(int *posx, int *posy, server *server);
 int valida_texto(int *posx, int *posy, server *server);
+void escape(int *posy, char *linha, server *server);
+void apanha_linha(int *posy, char *linha, server *server);
 
 #endif

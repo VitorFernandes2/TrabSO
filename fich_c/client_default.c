@@ -57,7 +57,7 @@ void documento(char *user, server *server){
             mvprintw(posy, 5," ");
             posx=7;
             move_cursor(&posx, &posy); 
-        }
+        }        
     }while(ch != 27);
 
     adeus(user, server);
@@ -96,7 +96,7 @@ void cabecalho(char *user,server *server){
 }
 
 void corpo(server *server){
-    int posx,posy,i; //variáveis de posição
+    int posx,posy,i,e; //variáveis de posição
     i = 1;
     mvaddch(4, 0, ACS_ULCORNER);
     posx = 1;
@@ -179,7 +179,14 @@ void adeus(char *user, server *server){
 }
 
 void teclas(int *posx, int *posy, server *server){
-    int ch;
+    int ch, i;
+    char *linha;
+    i=0;
+    linha = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
+    for(i=0; i<server->MEDIT_MAXCOLUMNS; i++){
+        *(linha + i) = ' ';
+    }
+    apanha_linha(posy, linha, server);
     do{
         ch = getch();
         if(ch == KEY_LEFT){
@@ -208,7 +215,11 @@ void teclas(int *posx, int *posy, server *server){
                 } 
             }                        
         }
-    }while(ch != 27 && ch != 10);    
+        if(ch==27){ //ESC
+            escape(posy, linha, server);
+        }
+    }while(ch != 27 && ch != 10);  
+    free(linha);  
 }
 
 void move_cursor(int *posx, int *posy){
@@ -259,4 +270,28 @@ int valida_texto(int *posx, int *posy, server *server){
     else
         move_cursor(posx, posy);
     return 0;
+}
+
+void escape(int *posy, char *linha, server *server){
+    int i, e;
+    char c, *copia;
+    copia=linha;
+    e=0;
+    for(i=7; i<server->MEDIT_MAXCOLUMNS + 6; i++){
+        mvprintw((*posy), i, "%c", copia[e]);
+        e++;
+    }
+}
+
+void apanha_linha(int *posy, char *linha, server *server){
+    int i , e;
+    char c, *copia;
+    copia = linha;  
+    e=0;   
+    for (i = 7; i < server->MEDIT_MAXCOLUMNS + 6; i++){        
+        c = mvinch((*posy), i);
+        copia[e]=c;
+        e++; 
+    }
+    c = mvinch((*posy), 7);
 }
