@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/errno.h>
 #include <pthread.h>
+#include <signal.h>
 #define PERM 0777
 
 #include "fich_h/server_default.h"
@@ -31,41 +32,33 @@ void settings(server *server){
 	c=getchar();
 }
 
+void kill_thread(){
+	pthread_exit(NULL);
+}
+
 void * le_pipe (void * arg){
-	int fd, nr, pid, i, verifica_fifo;
-	char istring[3], pipe[10];
+	int fd, nr, pid;
 	fd= (int) arg;
 
+	signal(SIGUSR1, kill_thread);
 	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDWR))==-1){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 		exit(-1);
 	}
 	
-	nr = read(fd, &pid, sizeof(int));
-	printf("\nCliente %d acabou de iniciar sessao\n", pid);
-	
-	strcpy(pipe, "pipe");
-	for(i=0; i < MEDIT_NUM_PIPES_V; i++){
-		sprintf(istring, "%d", i+1);
-		strcat(pipe, istring);
-		if( ( verifica_fifo= mkfifo (pipe, PERM) ) == -1 ){
-			fprintf(stderr, "\nErro ao criar a fifo\n");
-		}
-		strcpy(pipe, "pipe");
+	while(nr = read(fd, &pid, sizeof(int))){
+		printf("\nCliente com pid %d acabou de iniciar sessao\n", pid);
 	}
-	
-	
-	pthread_exit(NULL);
 	
 }
 
 int main(int argc, char *argv[]){
 	server server;
-	char cline[20], lixo, *user,hostname[20];
+	char cline[20], lixo, *user,hostname[20], istring[3], pipe[10];
 	user=getenv("USER");
 	gethostname(hostname,20);
-	int tamArgc, fd_server_pipe, verifica_fifo;
-	pthread_t t_server;
+	int tamArgc, fd_server_pipe, verifica_fifo, i, verifica;
+	pthread_t t_server, array_threads[MEDIT_NUM_PIPES_V];
 
 	if(argc!=1){
 		for(tamArgc=1; tamArgc<argc; tamArgc++){
@@ -83,16 +76,30 @@ int main(int argc, char *argv[]){
 			printf("\nA fifo %s ja existe\n", MEDIT_NAME_PIPE_PRINCI_V);
 		}
 		else {
-			//Abort("\nErro no mkfifo()\n");
+			fprintf(stderr, "\nErro ao criar %s\n", MEDIT_NAME_PIPE_PRINCI_V);
 		}
 	}
 	else {
 		printf("\nFifo %s criado\n", MEDIT_NAME_PIPE_PRINCI_V);
 	}
+	
+	strcpy(pipe, "pipe");
+	for(i=0; i < MEDIT_NUM_PIPES_V; i++){
+		sprintf(istring, "%d", i+1);
+		strcat(pipe, istring);
+		if( ( verifica= mkfifo (pipe, PERM) ) == -1 ){
+			fprintf(stderr, "\nErro ao criar a fifo\n");
+		}
 
+		if((pthread_create(&array_threads[i], NULL, le_pipe, (void *)&i))==-1){
+			fprintf(stderr, "\nErro: criacao da thread principal do server\n");
+		}
+		strcpy(pipe, "pipe");
+	}
+	
+	
 	if((pthread_create(&t_server, NULL, le_pipe, (void *)&fd_server_pipe))==-1){
 		fprintf(stderr, "\nErro: criacao da thread principal do server\n");
-
 	}
 		
 	do{
@@ -121,7 +128,7 @@ int main(int argc, char *argv[]){
 			}		
 	}while(strcmp(cline, "shutdown")!=0);
 	
-	
+	pthread_kill(t_server, SIGUSR1);
 	pthread_join(t_server, NULL);
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	exit(0);
