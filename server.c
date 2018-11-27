@@ -1,9 +1,15 @@
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <unistd.h>
+#include <sys/errno.h>
+#include <pthread.h>
+#define PERM 0777
+#define BUFFSIZE 1024
 
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
@@ -26,14 +32,30 @@ void settings(server *server){
 	c=getchar();
 }
 
+void * le_pipe (void * arg){
+	int fd, nr;
+	char buffer[BUFFSIZE];
+	fd= (int) arg;
+
+	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDONLY))==-1){
+		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
+		exit(-1);
+	}
+	
+	while( ( nr = read(fd, buffer, BUFFSIZE - 1) ) > 0){
+		buffer[nr]=0;
+		printf("\n%s recebeu %s\n", MEDIT_NAME_PIPE_PRINCI_V, buffer);
+	}
+	pthread_exit(NULL);
+}
+
 int main(int argc, char *argv[]){
 	server server;
-	char cline[20]; 
-	char lixo;
-	char *user,hostname[20];
+	char cline[20], lixo, *user,hostname[20];
 	user=getenv("USER");
 	gethostname(hostname,20);
-	int tamArgc;
+	int tamArgc, fd_server_pipe, verifica_fifo;
+	pthread_t t_server;
 
 	if(argc!=1){
 		for(tamArgc=1; tamArgc<argc; tamArgc++){
@@ -41,7 +63,28 @@ int main(int argc, char *argv[]){
 		}
 		fprintf(stderr, "\nSintaxe: executavel\n");
 		exit(-1);
-	}	
+	}
+
+	verifica_fifo=mkfifo(MEDIT_NAME_PIPE_PRINCI_V, PERM);
+
+
+	if(verifica_fifo==-1){
+		if(errno==EEXIST){
+			printf("\nA fifo %s ja existe\n", MEDIT_NAME_PIPE_PRINCI_V);
+		}
+		else {
+			//Abort("\nErro no mkfifo()\n");
+		}
+	}
+	else {
+		printf("\nFifo %s criado\n", MEDIT_NAME_PIPE_PRINCI_V);
+	}
+
+	if((pthread_create(&t_server, NULL, le_pipe, (void *)&fd_server_pipe))==-1){
+		fprintf(stderr, "\nErro: criacao da thread principal do server\n");
+
+	}
+		
 	do{
 		limpa();
 		printf("\nServidor:");
@@ -68,5 +111,7 @@ int main(int argc, char *argv[]){
 			}		
 	}while(strcmp(cline, "shutdown")!=0);
 	
+	
+	pthread_join(t_server, NULL);
 	exit(0);
 }

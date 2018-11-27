@@ -26,10 +26,9 @@
 
 int main(int argc, char *argv[])
 {
-	char *var_nome=NULL;
-	int i,c, myPID, fd1, myFifo;
+	char *var_nome=NULL, myPID[10];;
+	int i,c, myFifo, fd1;
 	c=0;
-	myPID=getpid();
 	server server;
 	fd_set fd_leitura;
 	FD_ZERO(&fd_leitura);
@@ -39,22 +38,24 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	myFifo=mkfifo("ola.fifo", PERM);
+	sprintf(myPID, "%d", getpid());
 
+	myFifo=mkfifo(myPID, PERM);
+	
 
 	if(myFifo==-1){
 		if(errno==EEXIST){
-			fprintf(stderr, "\nA fifo %s ja existe\n", myFifo);
+			fprintf(stderr, "\nA fifo %s ja existe\n", myPID);
 		}
 		else {
 			fprintf(stderr, "\nErro no mkfifo()\n");
 		}
 	}
 	else {
-		printf("\nFifo %s criado\n", myFifo);
+		printf("\nFifo %s criado\n", myPID);
 	}
 
-	fd1=open("ola.fifo", O_RDONLY);
+	fd1=open(myPID, O_RDONLY);
 	
 	if(fd1==-1){
 		fprintf(stderr, "\nErro: abertura do named pipe do cliente.\n");
