@@ -11,7 +11,7 @@
 #define MEDIT_MAXLINES_V 15
 #define MEDIT_MAXCOLUMNS_V 45
 #define MEDIT_FICHEIRO_V "fich_db/medit.db"
-#define MEDIT_NUM_PIPES_V 10
+#define MEDIT_NUM_PIPES_V 2
 #define MEDIT_NAME_PIPE_PRINCI_V "pipe_princi"
 
 #endif

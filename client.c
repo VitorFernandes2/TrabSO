@@ -11,7 +11,6 @@
 
 /*------------------------------*/
 /*            Imports           */
-
 /*------------------------------*/
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
@@ -27,43 +26,48 @@
 
 int main(int argc, char *argv[])
 {
-	char *var_nome=NULL, myPID[10];;
-	int i,c, myFifo, fd1;
+	char *var_nome=NULL, myPID[10];
+	int i, c, myFifo, fd_abrirL, fd_abrirE, pid, nw;
 	c=0;
 	server server;
-	fd_set fd_leitura;
-	FD_ZERO(&fd_leitura);
 
 	if(argc==1){
         	fprintf(stderr,"%s %d: Falta de comandos\n",argv[0]);
 		exit(-1);
 	}
 
-	sprintf(myPID, "%d", getpid());
+	pid=getpid();
+	
+	if( (fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
+		fprintf(stderr, "\nErro ao abir a pipe de escrito\n");
+		exit(-1);
+	}
+	
+	nw = write(fd_abrirE, &pid, sizeof(int));
+		
+
+	sprintf(myPID, "%d", pid);
 
 	myFifo=mkfifo(myPID, PERM);
 	
-
 	if(myFifo==-1){
 		if(errno==EEXIST){
 			fprintf(stderr, "\nA fifo %s ja existe\n", myPID);
 		}
 		else {
 			fprintf(stderr, "\nErro no mkfifo()\n");
+			exit(-1);
 		}
 	}
 	else {
 		printf("\nFifo %s criado\n", myPID);
 	}
 
-	fd1=open(myPID, O_RDONLY);
+	fd_abrirL=open(myPID, O_RDONLY);
 	
-	if(fd1==-1){
+	if(fd_abrirL==-1){
 		fprintf(stderr, "\nErro: abertura do named pipe do cliente.\n");
 	}
-	
-	
-	FD_SET(fd1, &fd_leitura);
     	
 
 	busca_ambiente(&server);

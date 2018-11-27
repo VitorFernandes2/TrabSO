@@ -9,7 +9,6 @@
 #include <sys/errno.h>
 #include <pthread.h>
 #define PERM 0777
-#define BUFFSIZE 1024
 
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
@@ -33,20 +32,31 @@ void settings(server *server){
 }
 
 void * le_pipe (void * arg){
-	int fd, nr;
-	char buffer[BUFFSIZE];
+	int fd, nr, pid, i, verifica_fifo;
+	char istring[3], pipe[10];
 	fd= (int) arg;
 
-	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDONLY))==-1){
+	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDWR))==-1){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 		exit(-1);
 	}
 	
-	while( ( nr = read(fd, buffer, BUFFSIZE - 1) ) > 0){
-		buffer[nr]=0;
-		printf("\n%s recebeu %s\n", MEDIT_NAME_PIPE_PRINCI_V, buffer);
+	nr = read(fd, &pid, sizeof(int));
+	printf("\nCliente %d acabou de iniciar sessao\n", pid);
+	
+	strcpy(pipe, "pipe");
+	for(i=0; i < MEDIT_NUM_PIPES_V; i++){
+		sprintf(istring, "%d", i+1);
+		strcat(pipe, istring);
+		if( ( verifica_fifo= mkfifo (pipe, PERM) ) == -1 ){
+			fprintf(stderr, "\nErro ao criar a fifo\n");
+		}
+		strcpy(pipe, "pipe");
 	}
+	
+	
 	pthread_exit(NULL);
+	
 }
 
 int main(int argc, char *argv[]){
@@ -113,5 +123,6 @@ int main(int argc, char *argv[]){
 	
 	
 	pthread_join(t_server, NULL);
+	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	exit(0);
 }
