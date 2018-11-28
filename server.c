@@ -38,7 +38,7 @@ void kill_thread(){
 
 void * le_pipe (void * arg){
 	int fd, nr, pid;
-	fd= (int) arg;
+	fd= *(int*) arg;
 
 	signal(SIGUSR1, kill_thread);
 	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDWR))==-1){
