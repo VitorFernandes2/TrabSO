@@ -9,6 +9,7 @@
 #include <sys/errno.h>
 #include <pthread.h>
 #include <signal.h>
+#define PERM 0666
 
 /*------------------------------*/
 /*            Imports           */
@@ -16,6 +17,21 @@
 #include "../fich_h/server_default.h"
 #include "../fich_h/medit_default.h"
 /*------------------------------*/
+
+
+void pipe_ini(int *myFifo, char *nomePipe){
+    
+	*myFifo=mkfifo(nomePipe, PERM);
+
+	if(*myFifo==-1){
+        	if(errno!=EEXIST){
+            		fprintf(stderr, "\nErro no mkfifo()\n");
+            		exit(-1);
+ 		}
+    	}
+	
+
+}
 
 int verifica_user(char *nomeFicheiro, char *username, char *exe){
 	FILE *f;
@@ -105,8 +121,8 @@ void kill_thread(){
 void * le_pipe (void * arg){
 	int fd, nr, pid;
 	fd= *(int*) arg;
-    cliServ recebe;
-    servCli resposta;
+    	cliServ recebe;
+    	servCli resposta;
 
 	signal(SIGUSR1, kill_thread);
 
@@ -116,6 +132,6 @@ void * le_pipe (void * arg){
 	}
 	
 	while(nr = read(fd, &recebe, sizeof(cliServ))){		
-		printf("\nCliente com pid %d acabou de iniciar sessao\n", pid);
+		printf("\nCliente com pid %d acabou de iniciar sessao\n", recebe.pid);
 	}	
 }

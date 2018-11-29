@@ -13,6 +13,7 @@
 #define MEDIT_FICHEIRO_V "fich_db/medit.db"
 #define MEDIT_NUM_PIPES_V 2
 #define MEDIT_NAME_PIPE_PRINCI_V "pipe_princi"
+#define PERM 0666
 
 typedef struct {
     int MEDIT_TIMEOUT;

@@ -10,10 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-/*------------------------------*/
-/*            Defines           */
-/*------------------------------*/
-#define PERM 0666
+
 /*------------------------------*/
 
 /*------------------------------*/
@@ -25,6 +22,7 @@
 /*------------------------------*/
 
 void pipes_ini(int *pid, int *fd_abrirE, int *nw, char *myPID, int *myFifo){
+    
     *pid=getpid();
 
     if( (*fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){

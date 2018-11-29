@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
 					//Fazer a validação de users pelo lado  servidor
 					envio.estado=0;
 					strcpy(envio.nome, var_nome);
-					envio.pipe=fd_abrirE;
-					envio.pid=getpid();
+					envio.pid=fd_abrirE;
+					
 
 					//Fazer validações de users
 

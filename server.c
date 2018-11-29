@@ -10,20 +10,21 @@
 #include <pthread.h>
 #include <signal.h>
 
-#define PERM 0666
-
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
 
+
 int main(int argc, char *argv[]){
 	server server;
-	char cline[20], lixo, *user,hostname[20], istring[3], pipe[10];
-	user=getenv("USER");
+	char cline[20], lixo, *user,hostname[20];
 	gethostname(hostname,20);
-	int tamArgc, fd_server_pipe, verifica_fifo, i, verifica;
-	pthread_t t_server, threads_L[MEDIT_NUM_PIPES_V];
+	int tamArgc, fd_server_pipe, fifoPrincipal, fifoPull;
+	pthread_t t_server;
 	void *estado;
 
+	user=getenv("USER");
+
+	
 	if(argc!=1){
 		for(tamArgc=1; tamArgc<argc; tamArgc++){
 			fprintf(stderr, "\n%s: comando invalido", argv[tamArgc]);
@@ -32,19 +33,8 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}
 
-	verifica_fifo=mkfifo(MEDIT_NAME_PIPE_PRINCI_V, PERM);
-
-
-	if(verifica_fifo==-1){
-		if(errno==EEXIST){
-			printf("\nA fifo %s ja existe\n", MEDIT_NAME_PIPE_PRINCI_V);
-			exit(-1);
-		}
-		else {
-			fprintf(stderr, "\nErro ao criar %s\n", MEDIT_NAME_PIPE_PRINCI_V);
-			exit(-1);
-		}
-	}	
+	pipe_ini(&fifoPrincipal, MEDIT_NAME_PIPE_PRINCI_V);
+	pipe_ini(&fifoPull, "pipe1");
 	
 	if((pthread_create(&t_server, NULL, le_pipe, (void *)&fd_server_pipe))==-1){
 		fprintf(stderr, "\nErro: criacao da thread principal do server\n");
