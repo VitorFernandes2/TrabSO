@@ -6,12 +6,12 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "client_default.h"
 #include "medit_default.h"
 
 typedef struct{
     int estado;     //0 - Login   1 - Frases
     char *resposta; //Frase de resposta
+    char fifo_serv[10];//FIFO do servidor associado
     int valID;      // 0 - Nval   1 - Val
     int fd_serv;    //FIFO Servidor
     int linha;      //linha para colocar a frase

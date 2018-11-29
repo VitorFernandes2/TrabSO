@@ -16,6 +16,7 @@
 /*------------------------------*/
 #include "../fich_h/server_default.h"
 #include "../fich_h/medit_default.h"
+#include "../fich_h/client_default.h"
 /*------------------------------*/
 
 
@@ -120,25 +121,24 @@ void * le_pipe (void * arg){
 	int fd, nr, pid, nw, fd_abrirE;
 	fd= *(int*) arg;
 	char pipePID[10];
-    	cliServ recebe;
-    	servCli resposta;
+    cliServ recebe;
+	servCli resposta;
 
 	signal(SIGUSR1, kill_thread);
 
 	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDWR))==-1){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
-		exit(-1);
 	}
 	
-	while(nr = read(fd, &recebe, sizeof(cliServ))){		
+	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){		
 		printf("\nCliente com pid %d acabou de iniciar sessao\n", recebe.pid);
 		resposta.estado=0;
-		strcpy(resposta.resposta, "pipe1");
+		strcpy(resposta.fifo_serv, "pipe1");
 		sprintf(pipePID, "%d", recebe.pid);
-		if( (fd_abrirE=open(pipePID, O_WRONLY))==-1){
-        		fprintf(stderr, "Erro ao abir a pipe principal\n");
-        		exit(-1);
-    		}
+		if( (fd_abrirE=open(pipePID, O_WRONLY))<0){
+            fprintf(stderr, "Erro ao abir a pipe cliente\n");
+            break;
+        }
 		nw = write(fd_abrirE, &resposta, sizeof(servCli));
 	}	
 }

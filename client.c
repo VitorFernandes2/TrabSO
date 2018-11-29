@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	envio.pid=getpid();
 
 	//Criação das pipes de comunicação com o servidor
-	pipes_ini(&envio, &fd_abrirE, &nw, myPID, &myFifo);	
+	pipes_ini(&envio, &respostas, &fd_abrirE, &nw, myPID, &myFifo);	
 	//Programa principal	
 	documento(var_nome, &server);	
 	//Destroi o pipe que usa para comunicação com o server
