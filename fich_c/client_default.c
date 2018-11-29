@@ -21,27 +21,21 @@
 #include "../fich_h/medit_default.h"
 /*------------------------------*/
 
-void pipes_ini(int *pid, int *fd_abrirE, int *nw, char *myPID, int *myFifo){
-    
-    *pid=getpid();
+void pipes_ini(cliServ *client, int *fd_abrirE, int *nw, char *myPID, int *myFifo){
 
     if( (*fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
         fprintf(stderr, "Erro ao abir a pipe principal\n");
         exit(-1);
     }
 
-    *nw = write(*fd_abrirE, pid, sizeof(int));		
+    *nw = write(*fd_abrirE, client, sizeof(cliServ));
 
-    sprintf(myPID, "%d", *pid);
-
+    sprintf(myPID,"%d",client->pid);
+    
     *myFifo=mkfifo(myPID, PERM);    //Criação da pipe de leitura do cliente
     
     if(*myFifo==-1){
-        if(errno==EEXIST){
-            fprintf(stderr, "\nA fifo %s ja existe\n", myPID);
-            exit(-1);
-        }
-        else {
+        if(errno!=EEXIST){
             fprintf(stderr, "\nErro no mkfifo()\n");
             exit(-1);
         }

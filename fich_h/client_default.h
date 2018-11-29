@@ -24,7 +24,7 @@ typedef struct{
     int linha;
 }cliServ;
 
-void pipes_ini(int *pid, int *fd_abrirE, int *nw, char *myPID, int *myFifo);
+void pipes_ini(cliServ *client, int *fd_abrirE, int *nw, char *myPID, int *myFifo);
 void fim_pipe(char *myPID);
 void documento(char *user, server *server);
 void cabecalho(char *user,server *server);

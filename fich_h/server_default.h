@@ -10,13 +10,11 @@
 #include "medit_default.h"
 
 typedef struct{
-    int estado;
-    char *resposta;
-    int valID;
-    int pid;
-    pthread_t *thread;
-    int *fd_cli;
-    int linha;
+    int estado;     //0 - Login   1 - Frases
+    char *resposta; //Frase de resposta
+    int valID;      // 0 - Nval   1 - Val
+    int fd_serv;    //FIFO Servidor
+    int linha;      //linha para colocar a frase
 } servCli;
 
 void pipe_ini(int *myFifo, char *nomePipe);
