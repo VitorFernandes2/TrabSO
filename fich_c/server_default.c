@@ -119,6 +119,7 @@ void kill_thread(){
 void * le_pipe (void * arg){
 	int fd, nr, pid, nw, fd_abrirE;
 	fd= *(int*) arg;
+	char pipePID[10];
     	cliServ recebe;
     	servCli resposta;
 
@@ -131,9 +132,10 @@ void * le_pipe (void * arg){
 	
 	while(nr = read(fd, &recebe, sizeof(cliServ))){		
 		printf("\nCliente com pid %d acabou de iniciar sessao\n", recebe.pid);
-		resposta->estado=0;
-		strcpy(resposta->fd_serv, "pipe1");
-		if( (fd_abrirE=open(recebe.pid, O_WRONLY))==-1){
+		resposta.estado=0;
+		strcpy(resposta.resposta, "pipe1");
+		sprintf(pipePID, "%d", recebe.pid);
+		if( (fd_abrirE=open(pipePID, O_WRONLY))==-1){
         		fprintf(stderr, "Erro ao abir a pipe principal\n");
         		exit(-1);
     		}
