@@ -33,7 +33,7 @@ void settings(server *server){
 }
 
 void kill_thread(){
-	pthread_exit(NULL);
+	pthread_exit(0);
 }
 
 void * le_pipe (void * arg){
@@ -41,15 +41,17 @@ void * le_pipe (void * arg){
 	fd= *(int*) arg;
 
 	signal(SIGUSR1, kill_thread);
+
 	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDWR))==-1){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 		exit(-1);
 	}
 	
 	while(nr = read(fd, &pid, sizeof(int))){
+		//Organizar threads de leitura
+		//Organizar threads de escrita
 		printf("\nCliente com pid %d acabou de iniciar sessao\n", pid);
-	}
-	
+	}	
 }
 
 int main(int argc, char *argv[]){
@@ -58,7 +60,8 @@ int main(int argc, char *argv[]){
 	user=getenv("USER");
 	gethostname(hostname,20);
 	int tamArgc, fd_server_pipe, verifica_fifo, i, verifica;
-	pthread_t t_server, array_threads[MEDIT_NUM_PIPES_V];
+	pthread_t t_server, threads_L[MEDIT_NUM_PIPES_V];
+	void *estado;
 
 	if(argc!=1){
 		for(tamArgc=1; tamArgc<argc; tamArgc++){
@@ -78,25 +81,7 @@ int main(int argc, char *argv[]){
 		else {
 			fprintf(stderr, "\nErro ao criar %s\n", MEDIT_NAME_PIPE_PRINCI_V);
 		}
-	}
-	else {
-		printf("\nFifo %s criado\n", MEDIT_NAME_PIPE_PRINCI_V);
-	}
-	
-	strcpy(pipe, "pipe");
-	for(i=0; i < MEDIT_NUM_PIPES_V; i++){
-		sprintf(istring, "%d", i+1);
-		strcat(pipe, istring);
-		if( ( verifica= mkfifo (pipe, PERM) ) == -1 ){
-			fprintf(stderr, "\nErro ao criar a fifo\n");
-		}
-
-		if((pthread_create(&array_threads[i], NULL, le_pipe, (void *)&i))==-1){
-			fprintf(stderr, "\nErro: criacao da thread principal do server\n");
-		}
-		strcpy(pipe, "pipe");
-	}
-	
+	}	
 	
 	if((pthread_create(&t_server, NULL, le_pipe, (void *)&fd_server_pipe))==-1){
 		fprintf(stderr, "\nErro: criacao da thread principal do server\n");
@@ -126,10 +111,9 @@ int main(int argc, char *argv[]){
 			if(strcmp(cline, "shutdown")!=0){			
 				printf("%s: comando nao disponivel\n", cline);	
 			}		
-	}while(strcmp(cline, "shutdown")!=0);
-	
+	}while(strcmp(cline, "shutdown")!=0);	
 	pthread_kill(t_server, SIGUSR1);
-	pthread_join(t_server, NULL);
+	pthread_join(t_server, &estado);
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	exit(0);
 }

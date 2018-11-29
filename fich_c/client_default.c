@@ -1,8 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ncurses.h>
-#include <string.h>
 #include <unistd.h>
+#include <getopt.h>
+#include <sys/types.h>
+#include <string.h>
+#include <ncurses.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+/*------------------------------*/
+/*            Defines           */
+/*------------------------------*/
+#define PERM 0777
+/*------------------------------*/
 
 /*------------------------------*/
 /*            Imports           */
@@ -12,9 +24,42 @@
 #include "../fich_h/medit_default.h"
 /*------------------------------*/
 
+void pipes_ini(int *pid, int *fd_abrirE, int *nw, char *myPID, int *myFifo){
+    *pid=getpid();
+
+    if( (*fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
+        fprintf(stderr, "Erro ao abir a pipe principal\n");
+        exit(-1);
+    }
+
+    *nw = write(*fd_abrirE, pid, sizeof(int));		
+
+    sprintf(myPID, "%d", *pid);
+
+    *myFifo=mkfifo(myPID, PERM);    //Criação da pipe de leitura do cliente
+    
+    if(*myFifo==-1){
+        if(errno==EEXIST){
+            fprintf(stderr, "\nA fifo %s ja existe\n", myPID);
+            exit(-1);
+        }
+        else {
+            fprintf(stderr, "\nErro no mkfifo()\n");
+            exit(-1);
+        }
+    }
+    //Fazer ciclo para ler do servidor até que este morra
+}
+
+void fim_pipe(char *myPID){
+    unlink(myPID);
+    remove(myPID);
+}
+
 void documento(char *user, server *server){
     int nrow, ncol, posx, posy, oposx, oposy;
     char c;
+    char *linha;
     int ch, token; 
     //A var. token serve para alternar entre modo edição de linha
     //e modo navegação de texto
@@ -38,6 +83,8 @@ void documento(char *user, server *server){
     do{
         ch = getch();
         posx = 7;
+        linha = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
+
         if(ch == KEY_DOWN){
             if(posy < server->MEDIT_MAXLINES + 4){
                 posy++;
@@ -53,17 +100,20 @@ void documento(char *user, server *server){
         if(ch==10){ //ENTER  
             mvprintw(posy, 5,">");
             move_cursor(&posx, &posy);          
-            teclas(&posx, &posy, server); 
+            teclas(&posx, &posy, server, linha); 
             mvprintw(posy, 5," ");
             posx=7;
             move_cursor(&posx, &posy); 
-        }        
+        }
+        free(linha);        
     }while(ch != 27);
 
     adeus(user, server);
     
     endwin();
 }
+
+//Funções de Design
 
 void cabecalho(char *user,server *server){
     int posx; //variáveis de posição    
@@ -178,11 +228,12 @@ void adeus(char *user, server *server){
     usleep(1000000);
 }
 
-void teclas(int *posx, int *posy, server *server){
+//Função para ler as teclas
+
+void teclas(int *posx, int *posy, server *server, char *linha){
     int ch, i;
-    char *linha;
     i=0;
-    linha = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
+    
     for(i=0; i<server->MEDIT_MAXCOLUMNS; i++){
         *(linha + i) = ' ';
     }
@@ -218,8 +269,7 @@ void teclas(int *posx, int *posy, server *server){
         if(ch==27){ //ESC
             escape(posy, linha, server);
         }
-    }while(ch != 27 && ch != 10);  
-    free(linha);  
+    }while(ch != 27 && ch != 10);
 }
 
 void move_cursor(int *posx, int *posy){
