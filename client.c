@@ -24,29 +24,32 @@
 /*------------------------------*/
 
 
+
 int main(int argc, char *argv[])
 {
 	char *var_nome=NULL, myPID[10];
-	int i, c, myFifo, fd_abrirL, fd_abrirE, pid, nw;
+	int i, c, myFifo, fd_abrirL, fd_abrirE, nw;
 	c=0;
 	server server;
+	client cliente;
 
 	if(argc==1){
         	fprintf(stderr,"%s %d: Falta de comandos\n",argv[0]);
 		exit(-1);
 	}
-
-	pid=getpid();
 	
+	cliente.pid=getpid();
+	strcpy(cliente.nome, argv[2]);
+	cliente.estado=0;
+		
 	if( (fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
 		fprintf(stderr, "\nErro ao abir a pipe de escrito\n");
 		exit(-1);
 	}
 	
-	nw = write(fd_abrirE, &pid, sizeof(int));
+	nw = write(fd_abrirE, &cliente, sizeof(client));
 		
-
-	sprintf(myPID, "%d", pid);
+	sprintf(myPID, "%d", cliente.pid);
 
 	myFifo=mkfifo(myPID, PERM);
 	
@@ -62,7 +65,7 @@ int main(int argc, char *argv[])
 	else {
 		printf("\nFifo %s criado\n", myPID);
 	}
-
+	
 	fd_abrirL=open(myPID, O_RDONLY);
 	
 	if(fd_abrirL==-1){

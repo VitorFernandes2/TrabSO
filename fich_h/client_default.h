@@ -10,6 +10,12 @@
 #include "medit_default.h"
 #include "server_default.h"
 
+typedef struct {
+	int pid;
+	char nome[10];
+	int estado;
+}client;
+
 void documento(char *user, server *server);
 void cabecalho(char *user,server *server);
 void corpo(server *server);

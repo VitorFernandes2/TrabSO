@@ -13,6 +13,7 @@
 
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
+#include "fich_h/client_default.h"
 
 void limpa(){
 	printf("\n\n\n\n\n\n\n\n\n\n\n");
@@ -37,7 +38,8 @@ void kill_thread(){
 }
 
 void * le_pipe (void * arg){
-	int fd, nr, pid;
+	int fd, nr;
+	client cliente;
 	fd= *(int*) arg;
 
 	signal(SIGUSR1, kill_thread);
@@ -46,9 +48,14 @@ void * le_pipe (void * arg){
 		exit(-1);
 	}
 	
-	while(nr = read(fd, &pid, sizeof(int))){
-		printf("\nCliente com pid %d acabou de iniciar sessao\n", pid);
+	while(nr = read(fd, &cliente, sizeof(client))){
+		printf("\nCliente com pid %d acabou de iniciar sessao\n", cliente.pid);
 	}
+	
+}
+
+int criarFifo(){
+
 	
 }
 
@@ -57,8 +64,8 @@ int main(int argc, char *argv[]){
 	char cline[20], lixo, *user,hostname[20], istring[3], pipe[10];
 	user=getenv("USER");
 	gethostname(hostname,20);
-	int tamArgc, fd_server_pipe, verifica_fifo, i, verifica;
-	pthread_t t_server, array_threads[MEDIT_NUM_PIPES_V];
+	int tamArgc, fd_server_pipe, verifica_fifo;
+	pthread_t t_server;
 
 	if(argc!=1){
 		for(tamArgc=1; tamArgc<argc; tamArgc++){
@@ -81,20 +88,6 @@ int main(int argc, char *argv[]){
 	}
 	else {
 		printf("\nFifo %s criado\n", MEDIT_NAME_PIPE_PRINCI_V);
-	}
-	
-	strcpy(pipe, "pipe");
-	for(i=0; i < MEDIT_NUM_PIPES_V; i++){
-		sprintf(istring, "%d", i+1);
-		strcat(pipe, istring);
-		if( ( verifica= mkfifo (pipe, PERM) ) == -1 ){
-			fprintf(stderr, "\nErro ao criar a fifo\n");
-		}
-
-		if((pthread_create(&array_threads[i], NULL, le_pipe, (void *)&i))==-1){
-			fprintf(stderr, "\nErro: criacao da thread principal do server\n");
-		}
-		strcpy(pipe, "pipe");
 	}
 	
 	
