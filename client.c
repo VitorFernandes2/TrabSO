@@ -24,15 +24,15 @@ int main(int argc, char *argv[])
 	char var_nome2[9];
 	int i, c, myFifo, fd_abrirE, pid, nw;
 	cliServ envio;	//Estrutura Cliente-Servidor
-	servCli respostas;
+	servCli respostas;	//Estrutura Servidor-Cliente
 	c=0;
 	server server;
-	//
+
 	//Criação das pipes de comunicação com o servidor
 	pipes_ini(&pid, &fd_abrirE, &nw, myPID, &myFifo);
 	busca_ambiente(&server);
 	if(argc==1){					
-		sprintf(var_nome2,"Ucliente");
+		sprintf(var_nome2,"Uclient");
 		var_nome=var_nome2;
 		c=1;				
 	}
@@ -45,21 +45,17 @@ int main(int argc, char *argv[])
 					//Fazer a validação de users pelo lado  servidor
 					envio.estado=0;
 					strcpy(envio.nome, var_nome);
+					envio.pipe=fd_abrirE;
+					envio.pid=getpid();
 
-					if(write(myFifo, &envio, sizeof(cliServ))!=sizeof(cliServ)){
-						fprintf(stderr,"[ERRO]Nao foi possivel verificar o utilizador");
-					}
+					//Fazer validações de users
 
-					if(read(fd_abrirE, &respostas, sizeof(cliServ))!=sizeof(cliServ)){
-						fprintf(stderr,"[ERRO]Nao foi possivel verificar o utilizador");
-					}
-
-					if(verifica_user(server.MEDIT_FICHEIRO,var_nome,argv[0])==1){
-							c=1;                    
+					if(respostas.valID==1){
+						c=1;                    
 					}
 					else{
-							fprintf(stderr,"%s: Esse utilizador nao existe\n",argv[0]);
-							exit(-1);
+						fprintf(stderr,"%s: Esse utilizador nao existe\n",argv[0]);
+						exit(-1);
 					}   
 					break;
 				case 'n':

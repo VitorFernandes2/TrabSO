@@ -105,6 +105,8 @@ void kill_thread(){
 void * le_pipe (void * arg){
 	int fd, nr, pid;
 	fd= *(int*) arg;
+    cliServ recebe;
+    servCli resposta;
 
 	signal(SIGUSR1, kill_thread);
 
@@ -113,9 +115,7 @@ void * le_pipe (void * arg){
 		exit(-1);
 	}
 	
-	while(nr = read(fd, &pid, sizeof(int))){
-		//Organizar threads de leitura
-		//Organizar threads de escrita
+	while(nr = read(fd, &recebe, sizeof(cliServ))){		
 		printf("\nCliente com pid %d acabou de iniciar sessao\n", pid);
 	}	
 }

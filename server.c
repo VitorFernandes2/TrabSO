@@ -38,9 +38,11 @@ int main(int argc, char *argv[]){
 	if(verifica_fifo==-1){
 		if(errno==EEXIST){
 			printf("\nA fifo %s ja existe\n", MEDIT_NAME_PIPE_PRINCI_V);
+			exit(-1);
 		}
 		else {
 			fprintf(stderr, "\nErro ao criar %s\n", MEDIT_NAME_PIPE_PRINCI_V);
+			exit(-1);
 		}
 	}	
 	
@@ -76,7 +78,6 @@ int main(int argc, char *argv[]){
 	//fazer ciclo para matar todos os clientes
 	pthread_kill(t_server, SIGUSR1);
 	pthread_join(t_server, &estado);
-	pthread_exit(0);
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	exit(0);
 }

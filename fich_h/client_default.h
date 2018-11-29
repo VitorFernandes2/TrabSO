@@ -19,6 +19,7 @@
 typedef struct{
     int estado;     //0 - Login  1 - Manda Frase
     int pid;        //PID de cada ciente
+    int pipe;       //Pipe que este cliente lê
     char nome[9];   //Nome de cada cliente
     char *Frase;    //Frase de cada linha -> iguala com a variavel linha do documento
     int linha;
