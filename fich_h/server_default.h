@@ -6,17 +6,24 @@
 #include <unistd.h>
 #include <string.h>
 
-typedef struct {
-    int MEDIT_TIMEOUT;
-    int MEDIT_MAXUSERS;
-    int MEDIT_MAXLINES;
-    int MEDIT_MAXCOLUMNS;
-    char *MEDIT_FICHEIRO;
-    int MEDIT_NUM_PIPES;
-    char *MEDIT_NAME_PIPE_PRINCI;
-}server;
+#include "client_default.h"
+#include "medit_default.h"
+
+typedef struct{
+    int estado;
+    char *resposta;
+    int valID;
+    int pid;
+    pthread_t *thread;
+    int *fd_cli;
+    int linha;
+} servCli;
 
 int verifica_user(char *nomeFicheiro, char *username, char *exe);
 void busca_ambiente(server *server);
+void limpa();
+void settings(server *server);
+void kill_thread();
+void * le_pipe (void * arg);
 
 #endif

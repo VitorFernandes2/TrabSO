@@ -4,11 +4,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <getopt.h>
+#include <sys/types.h>
 #include <string.h>
 #include <ncurses.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "medit_default.h"
 #include "server_default.h"
+
+typedef struct{
+    int estado;     //0 - Login  1 - Manda Frase
+    int pid;        //PID de cada ciente
+    char nome[9];   //Nome de cada cliente
+    char *Frase;    //Frase de cada linha -> iguala com a variavel linha do documento
+    int linha;
+}cliServ;
 
 void pipes_ini(int *pid, int *fd_abrirE, int *nw, char *myPID, int *myFifo);
 void fim_pipe(char *myPID);

@@ -14,4 +14,14 @@
 #define MEDIT_NUM_PIPES_V 2
 #define MEDIT_NAME_PIPE_PRINCI_V "pipe_princi"
 
+typedef struct {
+    int MEDIT_TIMEOUT;
+    int MEDIT_MAXUSERS;
+    int MEDIT_MAXLINES;
+    int MEDIT_MAXCOLUMNS;
+    char *MEDIT_FICHEIRO;
+    int MEDIT_NUM_PIPES;
+    char *MEDIT_NAME_PIPE_PRINCI;
+}server;
+
 #endif

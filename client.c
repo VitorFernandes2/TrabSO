@@ -23,25 +23,37 @@ int main(int argc, char *argv[])
 	char *var_nome=NULL, myPID[10];
 	char var_nome2[9];
 	int i, c, myFifo, fd_abrirE, pid, nw;
+	cliServ envio;	//Estrutura Cliente-Servidor
+	servCli respostas;
 	c=0;
 	server server;
+	//
 	//Criação das pipes de comunicação com o servidor
 	pipes_ini(&pid, &fd_abrirE, &nw, myPID, &myFifo);
-
-	if(argc==1){			
+	busca_ambiente(&server);
+	if(argc==1){					
 		sprintf(var_nome2,"Ucliente");
 		var_nome=var_nome2;
-		busca_ambiente(&server);
-		c=1;
+		c=1;				
 	}
 	else
 	{
-		busca_ambiente(&server);
 		while((i = getopt(argc, argv, "u:p:n:")) != -1){
 			switch(i){
 				case 'u':
 					var_nome = optarg;
 					//Fazer a validação de users pelo lado  servidor
+					envio.estado=0;
+					strcpy(envio.nome, var_nome);
+
+					if(write(myFifo, &envio, sizeof(cliServ))!=sizeof(cliServ)){
+						fprintf(stderr,"[ERRO]Nao foi possivel verificar o utilizador");
+					}
+
+					if(read(fd_abrirE, &respostas, sizeof(cliServ))!=sizeof(cliServ)){
+						fprintf(stderr,"[ERRO]Nao foi possivel verificar o utilizador");
+					}
+
 					if(verifica_user(server.MEDIT_FICHEIRO,var_nome,argv[0])==1){
 							c=1;                    
 					}
@@ -52,9 +64,19 @@ int main(int argc, char *argv[])
 					break;
 				case 'n':
 					server.MEDIT_NAME_PIPE_PRINCI=optarg;
+					if(c!=1){
+						sprintf(var_nome2,"Ucliente");
+						var_nome=var_nome2;	
+						c=1;
+					}
 					break;
 				case 'p':
 					server.MEDIT_NUM_PIPES= atoi(optarg);
+					if(c!=1){
+						sprintf(var_nome2,"Ucliente");
+						var_nome=var_nome2;	
+						c=1;
+					}					
 					break;
 				default:
 					fprintf(stderr, "Opcao invalida!\n");

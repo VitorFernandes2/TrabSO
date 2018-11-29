@@ -9,50 +9,11 @@
 #include <sys/errno.h>
 #include <pthread.h>
 #include <signal.h>
-#define PERM 0777
+
+#define PERM 0666
 
 #include "fich_h/server_default.h"
 #include "fich_h/medit_default.h"
-
-void limpa(){
-	printf("\n\n\n\n\n\n\n\n\n\n\n");
-}
-
-void settings(server *server){
-	int c;
-	limpa();
-	printf("\nNumero maximo de linhas: %d", server->MEDIT_MAXLINES);
-	printf("\nNumero maximo de colunas: %d", server->MEDIT_MAXCOLUMNS);
-	printf("\nNome do ficheiro da base de dados: %s", server->MEDIT_FICHEIRO);
-	printf("\nNumero maximo de users a editar: %d", server->MEDIT_MAXUSERS);
-	printf("\nNumero de pipes: %d", server->MEDIT_NUM_PIPES);
-	printf("\nO nome da named pipe principal e: %s\n",server->MEDIT_NAME_PIPE_PRINCI);
-	printf("\nClique numa tecla para sair...");
-	c=getchar();
-	c=getchar();
-}
-
-void kill_thread(){
-	pthread_exit(0);
-}
-
-void * le_pipe (void * arg){
-	int fd, nr, pid;
-	fd= *(int*) arg;
-
-	signal(SIGUSR1, kill_thread);
-
-	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDWR))==-1){
-		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
-		exit(-1);
-	}
-	
-	while(nr = read(fd, &pid, sizeof(int))){
-		//Organizar threads de leitura
-		//Organizar threads de escrita
-		printf("\nCliente com pid %d acabou de iniciar sessao\n", pid);
-	}	
-}
 
 int main(int argc, char *argv[]){
 	server server;
@@ -112,8 +73,10 @@ int main(int argc, char *argv[]){
 				printf("%s: comando nao disponivel\n", cline);	
 			}		
 	}while(strcmp(cline, "shutdown")!=0);	
+	//fazer ciclo para matar todos os clientes
 	pthread_kill(t_server, SIGUSR1);
 	pthread_join(t_server, &estado);
+	pthread_exit(0);
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	exit(0);
 }
