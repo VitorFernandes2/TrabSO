@@ -29,8 +29,6 @@ void pipe_ini(int *myFifo, char *nomePipe){
             		exit(-1);
  		}
     	}
-	
-
 }
 
 int verifica_user(char *nomeFicheiro, char *username, char *exe){
@@ -119,7 +117,7 @@ void kill_thread(){
 }
 
 void * le_pipe (void * arg){
-	int fd, nr, pid;
+	int fd, nr, pid, nw, fd_abrirE;
 	fd= *(int*) arg;
     	cliServ recebe;
     	servCli resposta;
@@ -133,5 +131,12 @@ void * le_pipe (void * arg){
 	
 	while(nr = read(fd, &recebe, sizeof(cliServ))){		
 		printf("\nCliente com pid %d acabou de iniciar sessao\n", recebe.pid);
+		resposta->estado=0;
+		strcpy(resposta->fd_serv, "pipe1");
+		if( (fd_abrirE=open(recebe.pid, O_WRONLY))==-1){
+        		fprintf(stderr, "Erro ao abir a pipe principal\n");
+        		exit(-1);
+    		}
+		nw = write(fd_abrirE, &resposta, sizeof(servCli));
 	}	
 }
