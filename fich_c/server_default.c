@@ -115,7 +115,7 @@ void * le_pipe (void * arg){
 		exit(-1);
 	}
 	
-	while(nr = read(fd, &recebe, sizeof(cliServ))){		
+	while(nr = read(fd, &pid, sizeof(cliServ))){		
 		printf("\nCliente com pid %d acabou de iniciar sessao\n", pid);
 	}	
 }

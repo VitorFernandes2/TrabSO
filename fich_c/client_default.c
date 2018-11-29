@@ -24,9 +24,9 @@
 #include "../fich_h/medit_default.h"
 /*------------------------------*/
 
-void pipes_ini(int *pid, int *fd_abrirE, int *nw, char *myPID, int *myFifo){
+void pipes_ini(int *pid, int *fd_abrirE, int *nw, char *myPID, int *myFifo){    
     *pid=getpid();
-
+    printf("\n%d\n",*pid);
     if( (*fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
         fprintf(stderr, "Erro ao abir a pipe principal\n");
         exit(-1);

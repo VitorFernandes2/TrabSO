@@ -74,8 +74,7 @@ int main(int argc, char *argv[]){
 			if(strcmp(cline, "shutdown")!=0){			
 				printf("%s: comando nao disponivel\n", cline);	
 			}		
-	}while(strcmp(cline, "shutdown")!=0);	
-	//fazer ciclo para matar todos os clientes
+	}while(strcmp(cline, "shutdown")!=0);
 	pthread_kill(t_server, SIGUSR1);
 	pthread_join(t_server, &estado);
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
