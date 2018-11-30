@@ -19,6 +19,7 @@
 #include "../fich_h/client_default.h"
 /*------------------------------*/
 
+int conta_users, *users;
 
 void pipe_ini(int *myFifo, char *nomePipe){
     
@@ -48,55 +49,8 @@ int verifica_user(char *nomeFicheiro, char *username, char *exe){
 	return 0;
 }
 
-void busca_ambiente(server *server){ //função que vai buscar as variáveis de ambiente se existirem
-    if(getenv("MEDIT_FICHEIRO")==NULL){
-        server->MEDIT_FICHEIRO=MEDIT_FICHEIRO_V;
-    }
-    else{
-        server->MEDIT_FICHEIRO=getenv("MEDIT_FICHEIRO");
-    }
-
-    if(getenv("MEDIT_NAME_PIPE_PRINCI")==NULL){
-        server->MEDIT_NAME_PIPE_PRINCI=MEDIT_NAME_PIPE_PRINCI_V;
-    }
-    else{
-        server->MEDIT_NAME_PIPE_PRINCI=getenv("MEDIT_NAME_PIPE_PRINCI");
-    }
-
-    if(getenv("MEDIT_MAXUSERS")==NULL){
-        server->MEDIT_MAXUSERS=MEDIT_MAXUSERS_V;
-    }
-    else{
-        server->MEDIT_MAXUSERS=atoi(getenv("MEDIT_MAXUSERS"));
-    }
-    
-    if(getenv("MEDIT_MAXLINES")==NULL){
-        server->MEDIT_MAXLINES=MEDIT_MAXLINES_V;
-    }
-    else{
-        if(atoi(getenv("MEDIT_MAXLINES"))<1000)        
-            server->MEDIT_MAXLINES=atoi(getenv("MEDIT_MAXLINES"));
-        else
-            server->MEDIT_MAXLINES=999;
-    }
-
-    if(getenv("MEDIT_MAXCOLUMNS")==NULL){
-        server->MEDIT_MAXCOLUMNS=MEDIT_MAXCOLUMNS_V;
-    }
-    else{     
-        server->MEDIT_MAXCOLUMNS=atoi(getenv("MEDIT_MAXCOLUMNS"));
-    }
-
-    if(getenv("MEDIT_NUM_PIPES")==NULL){
-        server->MEDIT_NUM_PIPES=MEDIT_NUM_PIPES_V;
-    }
-    else{
-        server->MEDIT_NUM_PIPES=atoi(getenv("MEDIT_NUM_PIPES"));
-    }
-}
-
 void limpa(){
-	printf("\n\n\n\n\n\n\n\n\n\n\n");
+	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
 
 void settings(server *server){
@@ -114,11 +68,15 @@ void settings(server *server){
 }
 
 void kill_thread(){
+	int i;
+	for(i=0; i < conta_users; i++){
+		kill(users[i], SIGUSR1);
+	}
 	pthread_exit(0);
 }
 
 void * le_pipe (void * arg){
-	int fd, nr, pid, nw, fd_abrirE;
+	int fd, nr, pid, nw, fd_abrirE, i,conta_vistos;
 	fd= *(int*) arg;
 	char pipePID[10];
     cliServ recebe;
@@ -130,7 +88,28 @@ void * le_pipe (void * arg){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 	}
 	
-	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){		
+	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){	
+		//Fazer verificações para a alocação de memória
+		if(conta_users==0){
+			users = (int *) malloc(sizeof(int));
+			conta_users++;
+			users[0]=recebe.pid;
+		}
+		else{
+			for(i=0;i<conta_users;i++){
+				if(users[i]==recebe.pid){
+					conta_vistos++;
+				}
+			}
+			if(conta_vistos){
+				conta_vistos=0;
+			}
+			else{
+				conta_users++;
+				users = (int *) realloc(users, conta_users * sizeof(int));
+			}
+		}
+
 		resposta.estado=0;
 		strcpy(resposta.fifo_serv, "pipe1");
 		sprintf(pipePID, "%d", recebe.pid);

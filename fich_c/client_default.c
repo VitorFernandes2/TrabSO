@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
 
 
 /*------------------------------*/
@@ -19,6 +20,14 @@
 #include "../fich_h/client_default.h"
 /*------------------------------*/
 
+void sig_handler(int signo)
+{
+    if (signo == SIGUSR1){        
+        endwin();
+        printf("O servidor foi desligado\n");
+    }    
+    exit(0);
+}
 
 void * le_pipe_Cli (void * arg){
 	int fd, myPID, nr;
@@ -83,6 +92,8 @@ void documento(char *user, server *server){
     move_cursor(&posx, &posy);
 
     do{
+        signal(SIGUSR1,sig_handler);
+
         ch = getch();
         posx = 7;
         linha = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));

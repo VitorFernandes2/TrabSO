@@ -20,7 +20,6 @@ typedef struct{
 
 void pipe_ini(int *myFifo, char *nomePipe);
 int verifica_user(char *nomeFicheiro, char *username, char *exe);
-void busca_ambiente(server *server);
 void limpa();
 void settings(server *server);
 void kill_thread();

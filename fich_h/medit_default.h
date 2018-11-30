@@ -25,4 +25,6 @@ typedef struct {
     char *MEDIT_NAME_PIPE_PRINCI;
 }server;
 
+void busca_ambiente(server *server);
+
 #endif

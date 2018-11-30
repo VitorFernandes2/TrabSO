@@ -18,7 +18,7 @@ int main(int argc, char *argv[]){
 	server server;
 	char cline[20], lixo, *user,hostname[20];
 	gethostname(hostname,20);
-	int tamArgc, fd_server_pipe, fifoPrincipal, fifoPull;
+	int tamArgc, fd_server_pipe, fifoPrincipal, fifoPull, i;
 	pthread_t t_server;
 	void *estado;
 
@@ -66,8 +66,10 @@ int main(int argc, char *argv[]){
 			}		
 	}while(strcmp(cline, "shutdown")!=0);	
 	//fazer ciclo para matar todos os clientes
+	
 	pthread_kill(t_server, SIGUSR1);
 	pthread_join(t_server, &estado);
+	remove("pipe1");
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	exit(0);
 }
