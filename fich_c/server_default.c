@@ -121,7 +121,7 @@ void * le_pipe (void * arg){
 	int fd, nr, pid, nw, fd_abrirE;
 	fd= *(int*) arg;
 	char pipePID[10];
-    cliServ recebe;
+    	cliServ recebe;
 	servCli resposta;
 
 	signal(SIGUSR1, kill_thread);
@@ -136,9 +136,9 @@ void * le_pipe (void * arg){
 		strcpy(resposta.fifo_serv, "pipe1");
 		sprintf(pipePID, "%d", recebe.pid);
 		if( (fd_abrirE=open(pipePID, O_WRONLY))<0){
-            fprintf(stderr, "Erro ao abir a pipe cliente\n");
-            break;
-        }
+            		fprintf(stderr, "Erro ao abir a pipe cliente\n");
+            		break;
+        	}
 		nw = write(fd_abrirE, &resposta, sizeof(servCli));
 	}	
 }

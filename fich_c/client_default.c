@@ -19,14 +19,27 @@
 #include "../fich_h/client_default.h"
 /*------------------------------*/
 
+
+void * le_pipe_Cli (void * arg){
+	int fd, myPID, nr;
+	char myPipe[10];
+	fd= *(int*) arg;
+	servCli recebe;
+	
+	myPID=getpid();
+	sprintf(myPipe, "%d", myPID);
+
+	if( (fd=open(myPipe, O_RDWR))==-1){
+		fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
+		exit(-1);
+	}
+	
+	while((nr = read(fd, &recebe, sizeof(servCli)))>0){		
+   	}
+   
+}
+
 void pipes_ini(cliServ *client, servCli *serv, int *fd_abrirE, int *nw, char *myPID, int *myFifo){
-
-    if( (*fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
-        fprintf(stderr, "Erro ao abir a pipe principal\n");
-        exit(-1);
-    }
-
-    *nw = write(*fd_abrirE, client, sizeof(cliServ));
 
     sprintf(myPID,"%d",client->pid);
 
@@ -39,14 +52,6 @@ void pipes_ini(cliServ *client, servCli *serv, int *fd_abrirE, int *nw, char *my
         }
     }
     
-    if( (*fd_abrirE=open(myPID, O_RDONLY))==-1){
-        fprintf(stderr, "Erro ao abir a pipe do cliente\n");
-        exit(-1);
-    }
-
-    while((read(*myFifo, serv, sizeof(servCli)))==sizeof(servCli)){
-        printf("\n %d",serv->valID);
-    }
 }
 
 void fim_pipe(char *myPID){

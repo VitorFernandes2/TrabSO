@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <pthread.h>
 
 /*------------------------------*/
 /*            Imports           */
@@ -22,10 +23,11 @@ int main(int argc, char *argv[])
 {
 	char *var_nome=NULL, myPID[10];
 	char var_nome2[9];
-	int i, c, myFifo, fd_abrirE, pid, nw;
+	int i, c, myFifo, fd_abrirE, pid, nw, nr, fd_client_pipe;
 	cliServ envio;	//Estrutura Cliente-Servidor
 	servCli respostas;	//Estrutura Servidor-Cliente
 	server server;
+	pthread_t t_client;	//Thread para estar sempre a ler
 
 	busca_ambiente(&server);
 
@@ -61,6 +63,21 @@ int main(int argc, char *argv[])
 
 	//Criação das pipes de comunicação com o servidor
 	pipes_ini(&envio, &respostas, &fd_abrirE, &nw, myPID, &myFifo);	
+
+	if((pthread_create(&t_client, NULL, le_pipe_Cli, (void *)&fd_client_pipe))==-1){
+		fprintf(stderr, "\nErro: criacao da thread principal do cliente\n");
+	}
+
+	if( (fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
+        	fprintf(stderr, "Erro ao abir a pipe principal\n");
+        	exit(-1);
+    	}
+
+    	nw = write(fd_abrirE, &envio, sizeof(cliServ));
+
+	
+
+   	
 	//Programa principal	
 	documento(var_nome, &server);	
 	//Destroi o pipe que usa para comunicação com o server
