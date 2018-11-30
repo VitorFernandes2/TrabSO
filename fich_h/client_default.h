@@ -21,6 +21,8 @@ typedef struct{
     int pid;        //PID de cada ciente
     char nome[9];   //Nome de cada cliente
     char *Frase;    //Frase de cada linha -> iguala com a variavel linha do documento
+    char ficheiro[40];
+    int resposta;
     int linha;
 }cliServ;
 

@@ -23,10 +23,10 @@
 void * le_pipe_Cli (void * arg){
 	int fd, myPID, nr;
 	char myPipe[10];
-	fd= *(int*) arg;
-	servCli recebe;
+	servCli *recebe;
+	recebe = (servCli*) arg;
 	
-	myPID=getpid();
+    myPID=getpid();
 	sprintf(myPipe, "%d", myPID);
 
 	if( (fd=open(myPipe, O_RDWR))==-1){
@@ -34,9 +34,8 @@ void * le_pipe_Cli (void * arg){
 		exit(-1);
 	}
 	
-	while((nr = read(fd, &recebe, sizeof(servCli)))>0){		
+	while((nr = read(fd, recebe, sizeof(servCli)))>0){
    	}
-   
 }
 
 void pipes_ini(cliServ *client, servCli *serv, int *fd_abrirE, int *nw, char *myPID, int *myFifo){

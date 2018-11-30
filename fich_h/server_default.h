@@ -10,6 +10,7 @@
 
 typedef struct{
     int estado;     //0 - Login   1 - Frases
+    int muda;       //saber se já respondeu
     char *resposta; //Frase de resposta
     char fifo_serv[10];//FIFO do servidor associado
     int valID;      // 0 - Nval   1 - Val

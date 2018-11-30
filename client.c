@@ -60,26 +60,35 @@ int main(int argc, char *argv[])
 	envio.estado=0;
 	strcpy(envio.nome, var_nome);
 	envio.pid=getpid();
-
+	envio.resposta=0;
+	respostas.muda=0;
+	strcpy(envio.ficheiro,server.MEDIT_FICHEIRO);
 	//Criação das pipes de comunicação com o servidor
 	pipes_ini(&envio, &respostas, &fd_abrirE, &nw, myPID, &myFifo);	
 
-	if((pthread_create(&t_client, NULL, le_pipe_Cli, (void *)&fd_client_pipe))==-1){
+	if((pthread_create(&t_client, NULL, le_pipe_Cli, (void *)&respostas))==-1){
 		fprintf(stderr, "\nErro: criacao da thread principal do cliente\n");
 	}
 
 	if( (fd_abrirE=open(MEDIT_NAME_PIPE_PRINCI_V, O_WRONLY))==-1){
-        	fprintf(stderr, "Erro ao abir a pipe principal\n");
-        	exit(-1);
-    	}
+		fprintf(stderr, "Erro ao abir a pipe principal\n");
+		exit(-1);
+	}
 
-    	nw = write(fd_abrirE, &envio, sizeof(cliServ));
-
-	
-
+	nw = write(fd_abrirE, &envio, sizeof(cliServ));
    	
-	//Programa principal	
-	documento(var_nome, &server);	
+	//ver erro desta parte pk de não passar o valor para fora
+
+	while(respostas.muda==0){ 	//Espera pela resposta do servidor
+	} 
+
+	if(respostas.estado==0 && respostas.valID==1){
+		documento(var_nome, &server);
+	}
+	else{
+		printf("[ERRO] Esse cliente nao existe\n\n");
+	}
+
 	//Destroi o pipe que usa para comunicação com o server
 	fim_pipe(myPID);
 												

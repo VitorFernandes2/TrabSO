@@ -25,11 +25,11 @@ void pipe_ini(int *myFifo, char *nomePipe){
 	*myFifo=mkfifo(nomePipe, PERM);
 
 	if(*myFifo==-1){
-        	if(errno!=EEXIST){
-            		fprintf(stderr, "\nErro no mkfifo()\n");
-            		exit(-1);
+		if(errno!=EEXIST){
+				fprintf(stderr, "\nErro no mkfifo()\n");
+				exit(-1);
  		}
-    	}
+	}
 }
 
 int verifica_user(char *nomeFicheiro, char *username, char *exe){
@@ -121,7 +121,7 @@ void * le_pipe (void * arg){
 	int fd, nr, pid, nw, fd_abrirE;
 	fd= *(int*) arg;
 	char pipePID[10];
-    	cliServ recebe;
+    cliServ recebe;
 	servCli resposta;
 
 	signal(SIGUSR1, kill_thread);
@@ -131,14 +131,18 @@ void * le_pipe (void * arg){
 	}
 	
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){		
-		printf("\nCliente com pid %d acabou de iniciar sessao\n", recebe.pid);
 		resposta.estado=0;
 		strcpy(resposta.fifo_serv, "pipe1");
 		sprintf(pipePID, "%d", recebe.pid);
 		if( (fd_abrirE=open(pipePID, O_WRONLY))<0){
-            		fprintf(stderr, "Erro ao abir a pipe cliente\n");
-            		break;
-        	}
+			fprintf(stderr, "Erro ao abir a pipe cliente\n");
+			break;
+		}
+		resposta.muda=1;
+		resposta.valID=verifica_user(recebe.ficheiro, recebe.nome, "client");
+		//vai devolver -1 se não abrir o ficheiro
+		//vai devolver 1 no caso de dar certo 
+		//vai devolver 0 no caso de dar errado
 		nw = write(fd_abrirE, &resposta, sizeof(servCli));
 	}	
 }
