@@ -152,3 +152,21 @@ void * le_pipe (void * arg){
 		nw = write(fd_abrirE, &resposta, sizeof(servCli));
 	}	
 }
+
+void * le_pipe1 (void * arg){
+	int fd, nr;
+	fd= *(int*) arg;
+    	cliServ recebe;
+
+	signal(SIGUSR1, kill_thread);
+	signal(SIGUSR2, sig_handler2);
+
+	if( (fd=open("pipe1", O_RDWR))==-1){
+		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
+	}
+	
+	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){	
+		printf("\nAlteracao do cliente %d:\n", recebe.pid);
+		printf("\n%s", recebe.frase);
+	}	
+}

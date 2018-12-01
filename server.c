@@ -18,8 +18,8 @@ int main(int argc, char *argv[]){
 	server server;
 	char cline[20], lixo, *user,hostname[20];
 	gethostname(hostname,20);
-	int tamArgc, fd_server_pipe, fifoPrincipal, fifoPull, i;
-	pthread_t t_server;
+	int tamArgc, fd_server_pipe, fd_pipe1, fifoPrincipal, fifoPull, i;
+	pthread_t t_server, t_pipe1;
 	void *estado;
 
 	user=getenv("USER");
@@ -38,6 +38,10 @@ int main(int argc, char *argv[]){
 	
 	if((pthread_create(&t_server, NULL, le_pipe, (void *)&fd_server_pipe))==-1){
 		fprintf(stderr, "\nErro: criacao da thread principal do server\n");
+	}
+
+	if((pthread_create(&t_pipe1, NULL, le_pipe1, (void *)&fd_pipe1))==-1){
+		fprintf(stderr, "\nErro: criacao da thread no server de leitura da pipe 1\n");
 	}
 		
 	do{
