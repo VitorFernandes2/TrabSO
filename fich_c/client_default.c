@@ -297,7 +297,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                     fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
                     exit(-1);
                 }
-                ne = write(fd, envio, sizeof(servCli));
+                ne = write(fd, envio, sizeof(cliServ));
             }
     }while(ch != 27 && ch != 10);
 }
