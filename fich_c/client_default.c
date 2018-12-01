@@ -22,9 +22,12 @@
 
 void sig_handler(int signo)
 {
+    char myPID[10];
     if (signo == SIGUSR1){        
         endwin();
         printf("O servidor foi desligado\n");
+        sprintf(myPID,"%d",getpid());
+        fim_pipe(myPID);
     }    
     exit(0);
 }

@@ -19,7 +19,30 @@
 #include "../fich_h/client_default.h"
 /*------------------------------*/
 
-int conta_users, *users;
+int conta_users, *users, user_to_kill;
+
+void sig_handler2(int signo)
+{
+	int encontrou, i;
+	encontrou=i=0;
+    if (signo == SIGUSR2){        
+        for(i=0; i<conta_users;i++){
+			if(users[i]==user_to_kill){
+				if(i!=conta_users-1){
+					users[i]=users[i+1];
+				}
+				encontrou++;
+			}
+			else{
+				if(encontrou>0)
+					if(i!=conta_users-1)
+						users[i]=users[i+1];
+			}
+		}
+		conta_users--;
+		users = (int*)realloc(users, conta_users*sizeof(int));
+    }
+}
 
 void pipe_ini(int *myFifo, char *nomePipe){
     
@@ -72,6 +95,7 @@ void kill_thread(){
 	for(i=0; i < conta_users; i++){
 		kill(users[i], SIGUSR1);
 	}
+	free(users);
 	pthread_exit(0);
 }
 
@@ -83,6 +107,7 @@ void * le_pipe (void * arg){
 	servCli resposta;
 
 	signal(SIGUSR1, kill_thread);
+	signal(SIGUSR2, sig_handler2);
 
 	if( (fd=open(MEDIT_NAME_PIPE_PRINCI_V, O_RDWR))==-1){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
@@ -90,6 +115,7 @@ void * le_pipe (void * arg){
 	
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){	
 		//Fazer verificações para a alocação de memória
+		user_to_kill=recebe.pid;
 		if(conta_users==0){
 			users = (int *) malloc(sizeof(int));
 			conta_users++;
@@ -107,6 +133,7 @@ void * le_pipe (void * arg){
 			else{
 				conta_users++;
 				users = (int *) realloc(users, conta_users * sizeof(int));
+				users[conta_users-1]=recebe.pid;
 			}
 		}
 
