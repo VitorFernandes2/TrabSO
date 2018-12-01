@@ -125,6 +125,7 @@ void * le_pipe (void * arg){
 			for(i=0;i<conta_users;i++){
 				if(users[i]==recebe.pid){
 					conta_vistos++;
+					i=conta_users;
 				}
 			}
 			if(conta_vistos){
