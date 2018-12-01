@@ -113,7 +113,8 @@ void * le_pipe (void * arg){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 	}
 	
-	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){	
+	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
+		printf("\nola\n");
 		//Fazer verificações para a alocação de memória
 		user_to_kill=recebe.pid;
 		if(conta_users==0){
@@ -158,6 +159,8 @@ void * le_pipe1 (void * arg){
 	int fd, nr;
 	fd= *(int*) arg;
     	cliServ recebe;
+	server server;	
+	busca_ambiente(&server);
 
 	signal(SIGUSR1, kill_thread);
 	signal(SIGUSR2, sig_handler2);
@@ -165,8 +168,9 @@ void * le_pipe1 (void * arg){
 	if( (fd=open("pipe1", O_RDWR))==-1){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 	}
-	
-	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){	
+	recebe.Frase= malloc(server.MEDIT_MAXCOLUMNS * sizeof(char));
+
+	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		printf("\nAlteracao do cliente %d:\n", recebe.pid);
 		printf("\n%s\n", recebe.Frase);
 	}	
