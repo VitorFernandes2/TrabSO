@@ -245,7 +245,7 @@ void adeus(char *user, server *server){
 
 void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *envio){
     int ch, i, fd, ne;
-    char *linha2, *linha;
+    char *linha2, *linha, c;
     linha=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
     linha2=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
     i=0;
@@ -290,6 +290,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 envio->linha = (*posy) - 4;
                 apanha_linha(posy, linha2, server);
                 strcpy(envio->Frase, linha2);
+                c = mvinch((*posy),(*posx));
 
                 if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
                     endwin();
