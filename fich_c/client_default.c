@@ -71,9 +71,8 @@ void fim_pipe(char *myPID){
 }
 
 void documento(char *user, server *server, servCli *respostas, cliServ *envio){
-    int nrow, ncol, posx, posy, oposx, oposy,fd, ne;
+    int nrow, ncol, posx, posy, oposx, oposy;
     char c;
-    char *linha;
     int ch, token; 
     //A var. token serve para alternar entre modo edição de linha
     //e modo navegação de texto
@@ -102,7 +101,6 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
 
         ch = getch();
         posx = 7;
-        linha = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
 
         if(ch == KEY_DOWN){
             if(posy < server->MEDIT_MAXLINES + 4){
@@ -119,22 +117,11 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
         if(ch==10){ //ENTER  
             mvprintw(posy, 5,">");
             move_cursor(&posx, &posy);          
-            teclas(&posx, &posy, server, linha); 
+            teclas(&posx, &posy, server, respostas, envio); 
             mvprintw(posy, 5," ");
             posx=7;
             move_cursor(&posx, &posy); 
-        }
-
-        if(ch != 27){
-            strcpy(envio->Frase,linha);
-            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){
-                fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
-                exit(-1);
-            }
-            ne = write(fd, envio, sizeof(servCli));
-        }
-        
-        free(linha);   
+        }         
     }while(ch != 27);
 
     adeus(user, server);
@@ -259,8 +246,11 @@ void adeus(char *user, server *server){
 
 //Função para ler as teclas
 
-void teclas(int *posx, int *posy, server *server, char *linha){
-    int ch, i;
+void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *envio){
+    int ch, i, fd, ne;
+    char *linha2, *linha;
+    linha=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
+    linha2=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
     i=0;
     
     for(i=0; i<server->MEDIT_MAXCOLUMNS; i++){
@@ -298,6 +288,17 @@ void teclas(int *posx, int *posy, server *server, char *linha){
         if(ch==27){ //ESC
             escape(posy, linha, server);
         }
+        else
+            if(ch!=10){
+                envio->linha = (*posy);
+                apanha_linha(posy, linha2, server);
+                strcpy(envio->Frase, linha2);
+                if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){
+                    fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
+                    exit(-1);
+                }
+                ne = write(fd, envio, sizeof(servCli));
+            }
     }while(ch != 27 && ch != 10);
 }
 
