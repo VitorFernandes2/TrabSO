@@ -125,13 +125,15 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
             move_cursor(&posx, &posy); 
         }
 
-        strcpy(envio->Frase,linha);
-        if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){
-            fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
-            exit(-1);
+        if(ch != 27){
+            strcpy(envio->Frase,linha);
+            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){
+                fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
+                exit(-1);
+            }
+            ne = write(fd, envio, sizeof(servCli));
         }
-        ne = write(fd, envio, sizeof(servCli));
-
+        
         free(linha);   
     }while(ch != 27);
 
