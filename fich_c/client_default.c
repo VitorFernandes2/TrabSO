@@ -71,7 +71,7 @@ void fim_pipe(char *myPID){
 }
 
 void documento(char *user, server *server, servCli *respostas, cliServ *envio){
-    int nrow, ncol, posx, posy, oposx, oposy;
+    int nrow, ncol, posx, posy, oposx, oposy,fd, ne;
     char c;
     char *linha;
     int ch, token; 
@@ -93,6 +93,9 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
     posx = 7;
     posy = 5;
     move_cursor(&posx, &posy);
+
+    respostas->resposta = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
+    envio->Frase = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
 
     do{
         signal(SIGUSR1,sig_handler);
@@ -121,7 +124,15 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
             posx=7;
             move_cursor(&posx, &posy); 
         }
-        free(linha);        
+
+        strcpy(envio->Frase,linha);
+        if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){
+            fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
+            exit(-1);
+        }
+        ne = write(fd, envio, sizeof(servCli));
+
+        free(linha);   
     }while(ch != 27);
 
     adeus(user, server);
