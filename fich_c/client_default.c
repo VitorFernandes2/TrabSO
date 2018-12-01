@@ -70,7 +70,7 @@ void fim_pipe(char *myPID){
     remove(myPID);
 }
 
-void documento(char *user, server *server){
+void documento(char *user, server *server, servCli *respostas, cliServ *envio){
     int nrow, ncol, posx, posy, oposx, oposy;
     char c;
     char *linha;

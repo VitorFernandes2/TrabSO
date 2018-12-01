@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
 	} 
 
 	if(respostas.estado==0 && respostas.valID==1){
-		documento(var_nome, &server);
+		envio.estado=1;
+		documento(var_nome, &server, &respostas, &envio);
 	}
 	else{
 		printf("[ERRO] Esse cliente nao existe\n\n");
