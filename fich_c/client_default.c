@@ -94,7 +94,6 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
     move_cursor(&posx, &posy);
 
     respostas->resposta = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
-    envio->Frase = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
 
     do{
         signal(SIGUSR1,sig_handler);
@@ -291,13 +290,17 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
         else
             if(ch!=10){
                 envio->linha = (*posy);
+                envio->Frase = malloc((server->MEDIT_MAXCOLUMNS) * sizeof(char));
                 apanha_linha(posy, linha2, server);
                 strcpy(envio->Frase, linha2);
-                if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){
+
+                if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+                    endwin();
                     fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
                     exit(-1);
                 }
-                ne = write(fd, envio, sizeof(servCli));
+                
+                ne = write(fd, envio, sizeof(cliServ));
             }
     }while(ch != 27 && ch != 10);
 }
