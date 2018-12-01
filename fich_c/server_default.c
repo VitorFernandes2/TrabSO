@@ -158,7 +158,7 @@ void * le_pipe (void * arg){
 void * le_pipe1 (void * arg){
 	int fd, nr;
 	fd= *(int*) arg;
-    	cliServ recebe;
+    cliServ recebe;
 	server server;	
 	busca_ambiente(&server);
 
@@ -169,11 +169,8 @@ void * le_pipe1 (void * arg){
 		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 	}
 
-	recebe.Frase= malloc(server.MEDIT_MAXCOLUMNS * sizeof(char));
-
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		printf("\nAlteracao do cliente %d:\n", recebe.pid);
-		printf("\n%s\n", recebe.Frase);
-		
+		printf("\n%s\n", recebe.Frase);		
 	}	
 }
