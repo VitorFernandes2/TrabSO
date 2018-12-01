@@ -103,7 +103,7 @@ void * le_pipe (void * arg){
 	int fd, nr, pid, nw, fd_abrirE, i,conta_vistos;
 	fd= *(int*) arg;
 	char pipePID[10];
-    cliServ recebe;
+    	cliServ recebe;
 	servCli resposta;
 
 	signal(SIGUSR1, kill_thread);
@@ -168,6 +168,6 @@ void * le_pipe1 (void * arg){
 	
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){	
 		printf("\nAlteracao do cliente %d:\n", recebe.pid);
-		printf("\n%s", recebe.frase);
+		printf("\n%s\n", recebe.Frase);
 	}	
 }
