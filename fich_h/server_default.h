@@ -24,5 +24,6 @@ void limpa();
 void settings(server *server);
 void kill_thread();
 void * le_pipe (void * arg);
+void * le_pipe1 (void * arg);
 
 #endif
