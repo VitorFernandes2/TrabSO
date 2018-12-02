@@ -156,11 +156,10 @@ void * le_pipe (void * arg){
 }
 
 void * le_pipe1 (void * arg){
-	int fd, nr, fdpipe[2];
+	int fd, nr;
 	fd= *(int*) arg;
     	cliServ recebe;
 	server server;
-	pipe (fdpipe);	
 	busca_ambiente(&server);
 
 	signal(SIGUSR1, kill_thread);
@@ -173,31 +172,15 @@ void * le_pipe1 (void * arg){
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		printf("\nAlteracao do cliente %d:\n", recebe.pid);
 		printf("\n%s\n", recebe.Frase);
-		switch(fork()){
-		case -1:
-			fprintf(stderr, "\nErro no fork()\n");
-			break;
-		case 0:
-			close(fdpipe[0]);
-			dup2(fdpipe[1], STDOUT_FILENO);
-			execlp("ls", "ls", NULL);
-			fprintf(stderr, "\nErro no execlp()\n");
-			break;
-		default:
-			close(fdpipe[1]);
-			dup2(fdpipe[0], STDIN_FILENO);
-			execlp("more", "more", NULL);
-			fprintf(stderr, "\nErro no execlp()\n");
-			break;
-		}		
+		dividePalavra(recebe.Frase);	
 	}	
 }
 
 void dividePalavra(char *frase){
 
-	int i, j, tam;
+	int i, j, fdpipe[2];
 	char *palavra;
-	
+	pipe (fdpipe);
 	for(j=0; frase[j]==' '; j++);		//Elimina espacos introduzidos logo no inicio da linha
 
 	do{
@@ -206,9 +189,28 @@ void dividePalavra(char *frase){
 			palavra[i]=frase[j];
 		}
 		palavra[i]='\0';
+		printf("\n%s\n", palavra);
 		
-	while(frase[j]!='\0');
+		
+	}while(frase[j]!='\0');
 }
 
 
+	/*switch(fork()){
+		case -1:
+			fprintf(stderr, "\nErro no fork()\n");
+			break;
+		case 0:
+			close(fdpipe[0]);
+			dup2(fdpipe[1], STDOUT_FILENO);
+			execlp("aspell","aspell","-t","-c",NULL);
+			fprintf(stderr, "\nErro no execlp1()\n");
+			break;
+		default:
+			close(fdpipe[1]);
+			dup2(fdpipe[0], STDIN_FILENO);
+			execlp(palavra, palavra , NULL);
+			fprintf(stderr, "\nErro no execlp2()\n");
+			break;
+		}*/
 
