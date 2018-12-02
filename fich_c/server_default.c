@@ -181,18 +181,19 @@ void dividePalavra(char *frase){
 	int i, j, fdpipe[2];
 	char *palavra;
 	pipe (fdpipe);
-	for(j=0; frase[j]==' '; j++);		//Elimina espacos introduzidos logo no inicio da linha
-
-	do{
-		palavra=malloc( MEDIT_MAXCOLUMNS_V * sizeof(char));
-		for(i=0; frase[j]!=' ' && frase[j]!='\0'; i++, j++){
-			palavra[i]=frase[j];
+	palavra=malloc( MEDIT_MAXCOLUMNS_V * sizeof(char));
+	i=0;
+	for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
+		while(frase[j]==' ')
+			j++;
+		palavra[i]=frase[j];
+		i++;
+		if(frase[j+1]==' ' || frase[j+1]=='\0'){
+			palavra[i]='\0';
+			i=0;
+			printf("%s\n",palavra);
 		}
-		palavra[i]='\0';
-		printf("\n%s\n", palavra);
-		
-		
-	}while(frase[j]!='\0');
+	}
 }
 
 
