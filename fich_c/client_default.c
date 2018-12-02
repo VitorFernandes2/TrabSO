@@ -286,7 +286,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
             escape(posy, linha, server);
         }
         else
-            if(ch!=10){
+            if(ch==10){
                 envio->linha = (*posy) - 4;
                 apanha_linha(posy, linha2, server);
                 strcpy(envio->Frase, linha2);
