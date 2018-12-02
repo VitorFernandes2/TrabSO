@@ -156,10 +156,11 @@ void * le_pipe (void * arg){
 }
 
 void * le_pipe1 (void * arg){
-	int fd, nr;
+	int fd, nr, fdpipe[2];
 	fd= *(int*) arg;
-    cliServ recebe;
-	server server;	
+    	cliServ recebe;
+	server server;
+	pipe (fdpipe);	
 	busca_ambiente(&server);
 
 	signal(SIGUSR1, kill_thread);
@@ -171,6 +172,23 @@ void * le_pipe1 (void * arg){
 
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		printf("\nAlteracao do cliente %d:\n", recebe.pid);
-		printf("\n%s\n", recebe.Frase);		
+		printf("\n%s\n", recebe.Frase);
+		switch(fork()){
+		case -1:
+			fprintf(stderr, "\nErro no fork()\n");
+			break;
+		case 0:
+			close(fdpipe[0]);
+			dup2(fdpipe[1], STDOUT_FILENO);
+			execlp("ls", "ls", NULL);
+			fprintf(stderr, "\nErro no execlp()\n");
+			break;
+		default:
+			close(fdpipe[1]);
+			dup2(fdpipe[0], STDIN_FILENO);
+			execlp("more", "more", NULL);
+			fprintf(stderr, "\nErro no execlp()\n");
+			break;
+		}		
 	}	
 }
