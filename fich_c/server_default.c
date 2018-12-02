@@ -192,3 +192,23 @@ void * le_pipe1 (void * arg){
 		}		
 	}	
 }
+
+void dividePalavra(char *frase){
+
+	int i, j, tam;
+	char *palavra;
+	
+	for(j=0; frase[j]==' '; j++);		//Elimina espacos introduzidos logo no inicio da linha
+
+	do{
+		palavra=malloc( MEDIT_MAXCOLUMNS_V * sizeof(char));
+		for(i=0; frase[j]!=' ' && frase[j]!='\0'; i++, j++){
+			palavra[i]=frase[j];
+		}
+		palavra[i]='\0';
+		
+	while(frase[j]!='\0');
+}
+
+
+
