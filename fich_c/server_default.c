@@ -9,6 +9,7 @@
 #include <sys/errno.h>
 #include <pthread.h>
 #include <signal.h>
+#include <sys/wait.h>
 #define PERM 0666
 
 /*------------------------------*/
@@ -178,9 +179,11 @@ void * le_pipe1 (void * arg){
 
 void dividePalavra(char *frase){
 
-	int i, j, fdpipe[2];
+	int i, j, fd1[2], fd2[2], nbytes, pid;
 	char *palavra;
-	pipe (fdpipe);
+	char sugestao[200];
+	pipe(fd1);
+	pipe(fd2);
 	palavra=malloc( MEDIT_MAXCOLUMNS_V * sizeof(char));
 	i=0;
 	for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
@@ -192,26 +195,37 @@ void dividePalavra(char *frase){
 			palavra[i]='\0';
 			i=0;
 			printf("%s\n",palavra);
+
+			pid=fork();
+			if(pid==-1){
+				fprintf(stderr, "\nErro no fork()\n");
+				}
+			else{
+				if(pid==0){
+					printf("\n3\n");
+					dup2(fd1[0], STDIN_FILENO);
+					dup2(fd2[1], STDOUT_FILENO);
+					printf("\n4\n");
+					close(fd1[1]);
+					close(fd1[0]);
+					close(fd2[1]);
+					close(fd2[0]);
+					printf("\n5\n");
+    					execlp("aspell", "aspell", "-a", (char*) NULL);	
+				}
+				else{
+					close(fd1[0]);
+					write(fd1[1], palavra, strlen(palavra)+1); 
+					close(fd1[1]); 
+					wait(NULL);
+					close(fd2[1]);
+					printf("\n%s\n", palavra);
+					read(fd2[0], sugestao, 200); 
+					printf("\n%s2\n", sugestao);
+					close(fd2[0]);	
+				}
+			}
 		}
 	}
 }
-
-
-	/*switch(fork()){
-		case -1:
-			fprintf(stderr, "\nErro no fork()\n");
-			break;
-		case 0:
-			close(fdpipe[0]);
-			dup2(fdpipe[1], STDOUT_FILENO);
-			execlp("aspell","aspell","-t","-c",NULL);
-			fprintf(stderr, "\nErro no execlp1()\n");
-			break;
-		default:
-			close(fdpipe[1]);
-			dup2(fdpipe[0], STDIN_FILENO);
-			execlp(palavra, palavra , NULL);
-			fprintf(stderr, "\nErro no execlp2()\n");
-			break;
-		}*/
 
