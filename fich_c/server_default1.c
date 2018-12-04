@@ -224,34 +224,13 @@ void dividePalavra(char *palavra){
 		write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
 		close(toaspell_pipe[1]); 
 		fprintf(stderr,"PAI: 1<%s>\n", palavra);
-		//strcpy(palavra," ");	//Apaga a palavra para a próxima utilização
 		
 		wait(NULL);
 
 		close(fromaspell_pipe[1]);				
 		read(fromaspell_pipe[0], sugestao, 200); 
 		close(fromaspell_pipe[0]);	
-		fprintf(stderr,"PAI: 2-> %s\n", sugestao);
-		//strcpy(sugestao," ");	//Apaga a sugestão para a próxima utilização			
+		fprintf(stderr,"PAI: 2-> %s\n", sugestao);		
 		break;
 	}	
 }
-
-/* char **fazMatriz(char *frase, char matriz[][45]){
-
-		int j, i, l;
-
-		for(i=0, j=0, l=0; i<(strlen(frase)); i++){
-			if(frase[i]!=' ' || frase[i]!='\0'){
-				matriz[l][j]=frase[i];
-				j++;
-			}
-			else{
-				matriz[l][j]='\0';
-				l++;
-				j=0;
-			}	
-		}
-		return matriz;
-} */
-
