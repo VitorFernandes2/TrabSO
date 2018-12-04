@@ -179,8 +179,10 @@ void * le_pipe1 (void * arg){
 
 void dividePalavra(char *frase){
 
-	int i, j, toaspell_pipe[2], fromaspell_pipe[2], nbytes, pid;
-	char *palavra;
+	int i=0, j, toaspell_pipe[2], fromaspell_pipe[2];
+	char palavra[200];
+	char matriz[15][45];
+
 	char sugestao[200];
 	
 	if( (pipe(toaspell_pipe)) == -1){
@@ -190,50 +192,49 @@ void dividePalavra(char *frase){
 		fprintf(stderr, "\nErro ao criar a pipe fromaspell_pipe\n");
 	}
 		
-	palavra=malloc( MEDIT_MAXCOLUMNS_V * sizeof(char));
-	i=0;
-	for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
-		while(frase[j]==' ')
-			j++;
-		palavra[i]=frase[j];
-		i++;
-		if(frase[j+1]==' ' || frase[j+1]=='\0'){
-			palavra[i]='\0';
-			i=0;
-			printf("%s\n",palavra);
+	switch(fork()){
+	case -1:
+		fprintf(stderr, "\nErro no fork()\n");
+		break;
+	case 0:
+		fprintf(stderr,"FILHO: 3\n");
+		dup2(toaspell_pipe[0], STDIN_FILENO);
+		dup2(fromaspell_pipe[1], STDOUT_FILENO);
+		fprintf(stderr,"FILHO: 4\n");
+		close(toaspell_pipe[1]);
+		close(fromaspell_pipe[0]);
+		fprintf(stderr,"FILHO: 5\n");
+		execlp("aspell", "aspell", "-a", (char*) NULL);	
+		break;
+	default:
+		close(toaspell_pipe[0]);
+		write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
+		close(toaspell_pipe[1]); 
+		wait(NULL);
+		close(fromaspell_pipe[1]);
+		fprintf(stderr,"PAI: 1<%s>\n", palavra);
+		read(fromaspell_pipe[0], sugestao, 200); 
+		fprintf(stderr,"PAI: %s2\n", sugestao);
+		close(fromaspell_pipe[0]);	
+		break;
+	}	
+}
 
-			pid=fork();
-			if(pid==-1){
-				fprintf(stderr, "\nErro no fork()\n");
-				}
+char **fazMatriz(char *frase, char matriz[][45]){
+
+		int j, i, l;
+
+		for(i=0, j=0, l=0; i<(strlen(frase)); i++){
+			if(frase[i]!=' ' || frase[i]!='\0'){
+				matriz[l][j]=frase[i];
+				j++;
+			}
 			else{
-				if(pid==0){
-					fprintf(stderr,"FILHO: 3\n");
-					dup2(toaspell_pipe[0], STDIN_FILENO);
-					dup2(fromaspell_pipe[1], STDOUT_FILENO);
-					fprintf(stderr,"FILHO: 4\n");
-					close(toaspell_pipe[1]);
-					//close(toaspell_pipe[0]);
-					//close(fromaspell_pipe[1]);
-					close(fromaspell_pipe[0]);
-					fprintf(stderr,"FILHO: 5\n");
-    					execlp("aspell", "aspell", "-a", (char*) NULL);	
-				}
-				else{
-					close(toaspell_pipe[0]);
-					write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
-					close(toaspell_pipe[1]); 
-					wait(NULL);
-					close(fromaspell_pipe[1]);
-					fprintf(stderr,"PAI: 1<%s>\n", palavra);
-					read(fromaspell_pipe[0], sugestao, 200); 
-					fprintf(stderr,"PAI: %s2\n", sugestao);
-					close(fromaspell_pipe[0]);	
-				}
-				//dup2(STDIN_FILENO, toaspell_pipe[0]);
-				//dup2(STDOUT_FILENO, fromaspell_pipe[1]);
+				matriz[l][j]='\0';
+				l++;
+				j=0;
 			}	
 		}
-	}
+		return matriz;
 }
 
