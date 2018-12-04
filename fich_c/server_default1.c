@@ -158,6 +158,9 @@ void * le_pipe (void * arg){
 
 void * le_pipe1 (void * arg){
 	int fd, nr;
+	int i=0, j;
+	char palavra[200];
+
 	fd= *(int*) arg;
     	cliServ recebe;
 	server server;
@@ -173,16 +176,26 @@ void * le_pipe1 (void * arg){
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		printf("\nAlteracao do cliente %d:\n", recebe.pid);
 		printf("\n%s\n", recebe.Frase);
-		dividePalavra(recebe.Frase);	
+		i=0;
+		for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
+			while(recebe.Frase[j]==' ')
+				j++;
+			palavra[i]=recebe.Frase[j];
+			i++;
+			if(recebe.Frase[j+1]==' ' || recebe.Frase[j+1]=='\0'){
+				palavra[i]='\0';
+				i=0;
+				printf("%s\n",palavra);
+				dividePalavra(palavra);
+			}			
+		}
+			
 	}	
 }
 
-void dividePalavra(char *frase){
+void dividePalavra(char *palavra){
 
 	int i=0, j, toaspell_pipe[2], fromaspell_pipe[2];
-	char palavra[200];
-	char matriz[15][45];
-
 	char sugestao[200];
 	
 	if( (pipe(toaspell_pipe)) == -1){
@@ -204,23 +217,27 @@ void dividePalavra(char *frase){
 		close(toaspell_pipe[1]);
 		close(fromaspell_pipe[0]);
 		fprintf(stderr,"FILHO: 5\n");
-		execlp("aspell", "aspell", "-a", (char*) NULL);	
+		execlp("aspell", "aspell", "-a", (char*) NULL);
 		break;
-	default:
+	default:		
 		close(toaspell_pipe[0]);
 		write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
 		close(toaspell_pipe[1]); 
-		wait(NULL);
-		close(fromaspell_pipe[1]);
 		fprintf(stderr,"PAI: 1<%s>\n", palavra);
+		//strcpy(palavra," ");	//Apaga a palavra para a próxima utilização
+		
+		wait(NULL);
+
+		close(fromaspell_pipe[1]);				
 		read(fromaspell_pipe[0], sugestao, 200); 
-		fprintf(stderr,"PAI: %s2\n", sugestao);
 		close(fromaspell_pipe[0]);	
+		fprintf(stderr,"PAI: 2-> %s\n", sugestao);
+		//strcpy(sugestao," ");	//Apaga a sugestão para a próxima utilização			
 		break;
 	}	
 }
 
-char **fazMatriz(char *frase, char matriz[][45]){
+/* char **fazMatriz(char *frase, char matriz[][45]){
 
 		int j, i, l;
 
@@ -236,5 +253,5 @@ char **fazMatriz(char *frase, char matriz[][45]){
 			}	
 		}
 		return matriz;
-}
+} */
 

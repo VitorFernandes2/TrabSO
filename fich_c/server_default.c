@@ -217,7 +217,7 @@ void dividePalavra(char *frase){
 					//close(fromaspell_pipe[1]);
 					close(fromaspell_pipe[0]);
 					fprintf(stderr,"FILHO: 5\n");
-    					execlp("aspell", "aspell", "-a", (char*) NULL);	
+    				execlp("aspell", "aspell", "-a", (char*) NULL);	
 				}
 				else{
 					close(toaspell_pipe[0]);
