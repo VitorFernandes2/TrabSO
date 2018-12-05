@@ -314,7 +314,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                     nl = read(fd2, respostas, sizeof(servCli));
                 }
                 if(respostas->perm==0){
-                    ch=0;
+                    ch='a';
                 }                
             }
     }while(ch != 27 && ch != 10);

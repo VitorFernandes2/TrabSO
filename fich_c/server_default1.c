@@ -156,9 +156,9 @@ void * le_pipe (void * arg){
 }
 
 void * le_pipe1 (void * arg){
-	int fd, nr, nw;
+	int fd, fd2, nr, nw, myPID;
 	int i=0, j, ver;
-	char palavra[200], c;
+	char palavra[200], c, myPipe[10];
 
 	fd= *(int*) arg;
 	servCli envia;
@@ -190,21 +190,31 @@ void * le_pipe1 (void * arg){
 				}
 			}			
 		}
+
+		printf("\nEstou aqui caralho %d\n",recebe.pid);
+
+		myPID=recebe.pid;
+		sprintf(myPipe, "%d", myPID);
+
+		if( (fd2=open(myPipe, O_WRONLY))==-1){
+			fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
+		}
+		
 		if(ver>0){
 			envia.estado=1;
 			envia.muda=1;
 			strcpy(envia.fifo_serv,"pipe1");
 			envia.perm=0;
-			nw = write(fd,&envia,sizeof(servCli));
+			nw = write(fd2,&envia,sizeof(servCli));
 		}
 		else{
 			envia.estado=1;
 			envia.muda=1;
 			strcpy(envia.fifo_serv,"pipe1");
 			envia.perm=1;
-			nw = write(fd,&envia,sizeof(servCli));
+			nw = write(fd2,&envia,sizeof(servCli));
 		}
-			
+		printf("\nEstou aqui caralho %d\n",recebe.pid);
 	}	
 }
 
