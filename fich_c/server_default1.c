@@ -156,12 +156,13 @@ void * le_pipe (void * arg){
 }
 
 void * le_pipe1 (void * arg){
-	int fd, nr;
-	int i=0, j;
-	char palavra[200];
+	int fd, nr, nw;
+	int i=0, j, ver;
+	char palavra[200], c;
 
 	fd= *(int*) arg;
-    	cliServ recebe;
+	servCli envia;
+    cliServ recebe;
 	server server;
 	busca_ambiente(&server);
 
@@ -174,6 +175,7 @@ void * le_pipe1 (void * arg){
 
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		i=0;
+		ver=0;
 		for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
 			while(recebe.Frase[j]==' ')
 				j++;
@@ -182,14 +184,31 @@ void * le_pipe1 (void * arg){
 			if(recebe.Frase[j+1]==' ' || recebe.Frase[j+1]=='\0'){
 				palavra[i]='\0';
 				i=0;
-				verificaErros(palavra);
+				verificaErros(palavra, &c);
+				if(c != '*'){
+					ver++;
+				}
 			}			
+		}
+		if(ver>0){
+			envia.estado=1;
+			envia.muda=1;
+			strcpy(envia.fifo_serv,"pipe1");
+			envia.perm=0;
+			nw = write(fd,&envia,sizeof(servCli));
+		}
+		else{
+			envia.estado=1;
+			envia.muda=1;
+			strcpy(envia.fifo_serv,"pipe1");
+			envia.perm=1;
+			nw = write(fd,&envia,sizeof(servCli));
 		}
 			
 	}	
 }
 
-void verificaErros(char *palavra){
+void verificaErros(char *palavra, char *c){
 
 	int i=0, j, toaspell_pipe[2], fromaspell_pipe[2];
 	char sugestao[200], token[200];
@@ -232,7 +251,7 @@ void verificaErros(char *palavra){
 				case '*':
 				case '+':
 				case '#':
-					fprintf(stderr,"PAI:-> %c\n", token[0]);
+					*c=token[0];
 					token[0]='\0';
 					break;
 				default:

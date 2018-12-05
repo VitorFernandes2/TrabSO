@@ -38,7 +38,7 @@ void * le_pipe_Cli (void * arg){
 	servCli *recebe;
 	recebe = (servCli*) arg;
 	
-    	myPID=getpid();
+    myPID=getpid();
 	sprintf(myPipe, "%d", myPID);
 
 	if( (fd=open(myPipe, O_RDWR))==-1){
@@ -244,8 +244,8 @@ void adeus(char *user, server *server){
 //Função para ler as teclas
 
 void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *envio){
-    int ch, i, fd, ne;
-    char *linha2, *linha, c;
+    int ch, i, fd, fd2, ne, nl, myPID;
+    char *linha2, *linha, c, myPipe[10];
     linha=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
     linha2=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
     i=0;
@@ -294,11 +294,28 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
 
                 if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
                     endwin();
-                    fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
+                    fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
                     exit(-1);
                 }
 
                 ne = write(fd, envio, sizeof(cliServ));
+
+                myPID=getpid();
+	            sprintf(myPipe, "%d", myPID);
+
+                if( (fd2=open(myPipe, O_RDONLY))==-1){                    
+                    endwin();
+                    fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
+                    exit(-1);
+                }
+                
+                respostas->muda=0;
+                while(respostas->muda==0){ 	//Espera pela resposta do servidor
+                    nl = read(fd2, respostas, sizeof(servCli));
+                }
+                if(respostas->perm==0){
+                    ch=0;
+                }                
             }
     }while(ch != 27 && ch != 10);
 }

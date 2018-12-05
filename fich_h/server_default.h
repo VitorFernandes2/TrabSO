@@ -11,10 +11,10 @@
 typedef struct{
     int estado;     //0 - Login   1 - Frases
     int muda;       //saber se já respondeu
+    int perm;       //Saber se a linha está bem escrita (1) ou não (0)
     char resposta[45]; //Frase de resposta
     char fifo_serv[10];//FIFO do servidor associado
     int valID;      // 0 - Nval   1 - Val
-    int fd_serv;    //FIFO Servidor
     int linha;      //linha para colocar a frase
 } servCli;
 
@@ -25,7 +25,6 @@ void settings(server *server);
 void kill_thread();
 void * le_pipe (void * arg);
 void * le_pipe1 (void * arg);
-void dividePalavra(char *frase);
-char **fazMatriz(char *frase, char matriz[][45]);
+void verificaErros(char *frase, char *c);
 
 #endif
