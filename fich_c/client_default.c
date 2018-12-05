@@ -311,11 +311,13 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 
                 respostas->muda=0;
                 while(respostas->muda==0){ 	//Espera pela resposta do servidor
-                    nl = read(fd2, respostas, sizeof(servCli));
                 }
                 if(respostas->perm==0){
                     ch='a';
-                }                
+                }  
+                else{
+                    ch=10;
+                }              
             }
     }while(ch != 27 && ch != 10);
 }
