@@ -115,7 +115,6 @@ void * le_pipe (void * arg){
 	}
 	
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
-		printf("\nCliente com PID %d acabou de iniciar sessao\n", recebe.pid);
 		//Fazer verificações para a alocação de memória
 		user_to_kill=recebe.pid;
 		if(conta_users==0){
@@ -157,9 +156,13 @@ void * le_pipe (void * arg){
 }
 
 void * le_pipe1 (void * arg){
-	int fd, nr;
+	int fd, fd2, nr, nw, myPID;
+	int i=0, j, ver;
+	char palavra[200], c, myPipe[10];
+
 	fd= *(int*) arg;
-    	cliServ recebe;
+	servCli envia;
+    cliServ recebe;
 	server server;
 	busca_ambiente(&server);
 
@@ -171,17 +174,52 @@ void * le_pipe1 (void * arg){
 	}
 
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
-		printf("\nAlteracao do cliente %d:\n", recebe.pid);
-		printf("\n%s\n", recebe.Frase);
-		dividePalavra(recebe.Frase);	
+		i=0;
+		ver=0;
+		for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
+			while(recebe.Frase[j]==' ')
+				j++;
+			palavra[i]=recebe.Frase[j];
+			i++;
+			if(recebe.Frase[j+1]==' ' || recebe.Frase[j+1]=='\0'){
+				palavra[i]='\0';
+				i=0;
+				verificaErros(palavra, &c);
+				if(c != '*'){
+					ver++;
+				}
+			}			
+		}
+
+		myPID=recebe.pid;
+		sprintf(myPipe, "%d", myPID);
+
+		if( (fd2=open(myPipe, O_WRONLY))==-1){
+			fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
+		}
+		
+		if(ver>0){
+			envia.estado=1;
+			envia.muda=1;
+			strcpy(envia.fifo_serv,"pipe1");
+			envia.perm=0;
+			nw = write(fd2,&envia,sizeof(servCli));
+		}
+		else{
+			envia.estado=1;
+			envia.muda=1;
+			strcpy(envia.fifo_serv,"pipe1");
+			envia.perm=1;
+			nw = write(fd2,&envia,sizeof(servCli));
+		}
 	}	
 }
 
-void dividePalavra(char *frase){
+void verificaErros(char *palavra, char *c){
 
-	int i, j, toaspell_pipe[2], fromaspell_pipe[2], nbytes, pid;
-	char *palavra;
-	char sugestao[200];
+	int i=0, j, toaspell_pipe[2], fromaspell_pipe[2];
+	char sugestao[200], token[200];
+	const char sign[2]="\n\0";
 	
 	if( (pipe(toaspell_pipe)) == -1){
 		fprintf(stderr, "\nErro ao criar a pipe toaspell_pipe\n");
@@ -190,50 +228,44 @@ void dividePalavra(char *frase){
 		fprintf(stderr, "\nErro ao criar a pipe fromaspell_pipe\n");
 	}
 		
-	palavra=malloc( MEDIT_MAXCOLUMNS_V * sizeof(char));
-	i=0;
-	for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
-		while(frase[j]==' ')
-			j++;
-		palavra[i]=frase[j];
-		i++;
-		if(frase[j+1]==' ' || frase[j+1]=='\0'){
-			palavra[i]='\0';
-			i=0;
-			printf("%s\n",palavra);
+	switch(fork()){
+	case -1:
+		fprintf(stderr, "\nErro no fork()\n");
+		break;
+	case 0:
+		dup2(toaspell_pipe[0], STDIN_FILENO);
+		dup2(fromaspell_pipe[1], STDOUT_FILENO);
+		close(toaspell_pipe[1]);
+		close(fromaspell_pipe[0]);
+		execlp("aspell", "aspell", "-a", (char*) NULL);
+		break;
+	default:		
+		close(toaspell_pipe[0]);
+		write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
+		close(toaspell_pipe[1]);
+		
+		wait(NULL);
 
-			pid=fork();
-			if(pid==-1){
-				fprintf(stderr, "\nErro no fork()\n");
-				}
-			else{
-				if(pid==0){
-					fprintf(stderr,"FILHO: 3\n");
-					dup2(toaspell_pipe[0], STDIN_FILENO);
-					dup2(fromaspell_pipe[1], STDOUT_FILENO);
-					fprintf(stderr,"FILHO: 4\n");
-					close(toaspell_pipe[1]);
-					//close(toaspell_pipe[0]);
-					//close(fromaspell_pipe[1]);
-					close(fromaspell_pipe[0]);
-					fprintf(stderr,"FILHO: 5\n");
-    				execlp("aspell", "aspell", "-a", (char*) NULL);	
-				}
-				else{
-					close(toaspell_pipe[0]);
-					write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
-					close(toaspell_pipe[1]); 
-					wait(NULL);
-					close(fromaspell_pipe[1]);
-					fprintf(stderr,"PAI: 1<%s>\n", palavra);
-					read(fromaspell_pipe[0], sugestao, 200); 
-					fprintf(stderr,"PAI: %s2\n", sugestao);
-					close(fromaspell_pipe[0]);	
-				}
-				//dup2(STDIN_FILENO, toaspell_pipe[0]);
-				//dup2(STDOUT_FILENO, fromaspell_pipe[1]);
-			}	
-		}
-	}
+		close(fromaspell_pipe[1]);				
+		read(fromaspell_pipe[0], sugestao, 200); 
+		close(fromaspell_pipe[0]);	
+
+		strcpy(token,strtok(sugestao,sign));
+
+		while( token[0] != '\0') {
+			switch(token[0]){
+				case '&':
+				case '*':
+				case '+':
+				case '#':
+					*c=token[0];
+					token[0]='\0';
+					break;
+				default:
+					strcpy(token,strtok(NULL,sign));
+					break;
+			}			
+		}		
+		break;
+	}	
 }
-
