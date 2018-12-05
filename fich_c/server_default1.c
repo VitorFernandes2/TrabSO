@@ -191,8 +191,6 @@ void * le_pipe1 (void * arg){
 			}			
 		}
 
-		printf("\n%d\n",ver);
-
 		myPID=recebe.pid;
 		sprintf(myPipe, "%d", myPID);
 
