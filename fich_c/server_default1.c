@@ -196,7 +196,8 @@ void * le_pipe1 (void * arg){
 void dividePalavra(char *palavra){
 
 	int i=0, j, toaspell_pipe[2], fromaspell_pipe[2];
-	char sugestao[200];
+	char sugestao[200], token[200];
+	const char sign[2]="\n\0";
 	
 	if( (pipe(toaspell_pipe)) == -1){
 		fprintf(stderr, "\nErro ao criar a pipe toaspell_pipe\n");
@@ -230,7 +231,25 @@ void dividePalavra(char *palavra){
 		close(fromaspell_pipe[1]);				
 		read(fromaspell_pipe[0], sugestao, 200); 
 		close(fromaspell_pipe[0]);	
-		fprintf(stderr,"PAI: 2-> %s\n", sugestao);		
+
+		strcpy(token,strtok(sugestao,sign));
+
+		while( token[0] != '\0') {
+			switch(token[0]){
+				case '&':
+				case '*':
+				case '+':
+				case '#':
+					fprintf(stderr,"PAI:-> %c\n", token[0]);
+					token[0]='\0';
+					break;
+				default:
+					strcpy(token,strtok(NULL,sign));
+					break;
+			}			
+		}
+
+		//fprintf(stderr,"PAI: 2-> %s\n", token);		
 		break;
 	}	
 }

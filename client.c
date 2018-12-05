@@ -28,14 +28,14 @@ int main(int argc, char *argv[])
 	servCli respostas;	//Estrutura Servidor-Cliente
 	server server;
 	pthread_t t_client;	//Thread para estar sempre a ler
-
+	
 	busca_ambiente(&server);
 
 	if(argc!=1){
 		while((i = getopt(argc, argv, "u:p:n:")) != -1){
 			switch(i){
 				case 'u':
-					var_nome = optarg;  
+					var_nome = optarg;
 					break;
 				case 'n':
 					server.MEDIT_NAME_PIPE_PRINCI=optarg;
