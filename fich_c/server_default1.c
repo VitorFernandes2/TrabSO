@@ -115,7 +115,6 @@ void * le_pipe (void * arg){
 	}
 	
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
-		printf("\nCliente com PID %d acabou de iniciar sessao\n", recebe.pid);
 		//Fazer verificações para a alocação de memória
 		user_to_kill=recebe.pid;
 		if(conta_users==0){
@@ -174,8 +173,6 @@ void * le_pipe1 (void * arg){
 	}
 
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
-		printf("\nAlteracao do cliente %d:\n", recebe.pid);
-		printf("\n%s\n", recebe.Frase);
 		i=0;
 		for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
 			while(recebe.Frase[j]==' ')
@@ -185,15 +182,14 @@ void * le_pipe1 (void * arg){
 			if(recebe.Frase[j+1]==' ' || recebe.Frase[j+1]=='\0'){
 				palavra[i]='\0';
 				i=0;
-				printf("%s\n",palavra);
-				dividePalavra(palavra);
+				verificaErros(palavra);
 			}			
 		}
 			
 	}	
 }
 
-void dividePalavra(char *palavra){
+void verificaErros(char *palavra){
 
 	int i=0, j, toaspell_pipe[2], fromaspell_pipe[2];
 	char sugestao[200], token[200];
@@ -211,20 +207,16 @@ void dividePalavra(char *palavra){
 		fprintf(stderr, "\nErro no fork()\n");
 		break;
 	case 0:
-		fprintf(stderr,"FILHO: 3\n");
 		dup2(toaspell_pipe[0], STDIN_FILENO);
 		dup2(fromaspell_pipe[1], STDOUT_FILENO);
-		fprintf(stderr,"FILHO: 4\n");
 		close(toaspell_pipe[1]);
 		close(fromaspell_pipe[0]);
-		fprintf(stderr,"FILHO: 5\n");
 		execlp("aspell", "aspell", "-a", (char*) NULL);
 		break;
 	default:		
 		close(toaspell_pipe[0]);
 		write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
-		close(toaspell_pipe[1]); 
-		fprintf(stderr,"PAI: 1<%s>\n", palavra);
+		close(toaspell_pipe[1]);
 		
 		wait(NULL);
 
@@ -247,9 +239,7 @@ void dividePalavra(char *palavra){
 					strcpy(token,strtok(NULL,sign));
 					break;
 			}			
-		}
-
-		//fprintf(stderr,"PAI: 2-> %s\n", token);		
+		}		
 		break;
 	}	
 }
