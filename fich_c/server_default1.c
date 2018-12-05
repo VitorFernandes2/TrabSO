@@ -191,8 +191,6 @@ void * le_pipe1 (void * arg){
 			}			
 		}
 
-		printf("\nEstou aqui caralho %d\n",recebe.pid);
-
 		myPID=recebe.pid;
 		sprintf(myPipe, "%d", myPID);
 
@@ -214,7 +212,6 @@ void * le_pipe1 (void * arg){
 			envia.perm=1;
 			nw = write(fd2,&envia,sizeof(servCli));
 		}
-		printf("\nEstou aqui caralho %d\n",recebe.pid);
 	}	
 }
 
