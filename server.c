@@ -188,16 +188,17 @@ int main(int argc, char *argv[]){
 								}
 
 	}while(strcmp(palavra1, "shutdown")!=0);
-	//fazer ciclo para matar todos os clientes
+
+	pthread_kill(t_server, SIGUSR1);//Faz logout a todos os Users
 	
-	pthread_kill(t_server, SIGUSR1);
-	for(k=0; k<numPipes; k++){
+	for(k=0; k < numPipes; k++){
 		sprintf(complementaPipe, "%d", k);
 		pthread_kill(array_threads[k], SIGUSR1);
-		pthread_join(array_threads[k], &estado);
+		//pthread_join(array_threads[k], &estado);
 		remove(complementaPipe);
 	}
-	pthread_join(t_server, &estado);
+
+	//pthread_join(t_server, &estado);
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	exit(0);
 }
