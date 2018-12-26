@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <signal.h>
 
 /*------------------------------*/
 /*            Imports           */
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
 {
 	char *var_nome=NULL, myPID[10];
 	char var_nome2[9];
-	int i, c, myFifo, fd_abrirE, pid, nw, nr, fd_client_pipe;
+	int i, c, myFifo, fd_abrirE, pid, nw, nr, fd_client_pipe, pid_server;
 	cliServ envio;	//Estrutura Cliente-Servidor
 	servCli respostas;	//Estrutura Servidor-Cliente
 	server server;
@@ -83,6 +84,8 @@ int main(int argc, char *argv[])
 	while(respostas.muda==0){ 	//Espera pela resposta do servidor
 	} 
 
+	pid_server = respostas.pid;
+
 	if(respostas.estado==0 && respostas.valID==1){
 		envio.estado=1;
 		documento(var_nome, &server, &respostas, &envio);
@@ -93,6 +96,8 @@ int main(int argc, char *argv[])
 
 	//Destroi o pipe que usa para comunicação com o server
 	fim_pipe(myPID);
-												
+
+	kill(pid_server, SIGUSR2);
+
 	exit(0);
 }

@@ -21,11 +21,12 @@
 /*------------------------------*/
 
 int conta_users, *users, user_to_kill;
+char **users_nome, nome_to_kill[9];
 static server server1;
 
 void sig_handler2(int signo)
 {
-	int encontrou, i;
+	int encontrou, i, e;
 	encontrou=i=0;
     if (signo == SIGUSR2){        
         for(i=0; i<conta_users;i++){
@@ -41,7 +42,30 @@ void sig_handler2(int signo)
 						users[i]=users[i+1];
 			}
 		}
+
+		encontrou = 0;
+		
+		for(i = 0; i < conta_users; i++)
+		{
+			
+			if (strcmp(nome_to_kill, users_nome[i]) == 0) 
+			{
+				if(i != conta_users - 1)
+					strcpy(users_nome[i], users_nome[i + 1]);
+				encontrou++;
+			}
+			else
+			{
+
+				if(encontrou > 0)
+					if(i != conta_users - 1)
+						strcpy(users_nome[i], users_nome[i + 1]);
+			}
+			
+		}
+		
 		conta_users--;
+
 		users = (int*)realloc(users, conta_users*sizeof(int));
     }
 }
@@ -59,19 +83,68 @@ void pipe_ini(int *myFifo, char *nomePipe){
 }
 
 int verifica_user(char *nomeFicheiro, char *username, char *exe){
+
 	FILE *f;
 	char auxiliar[9];
+	int i;
+
 	if((f=fopen(nomeFicheiro,"r"))==NULL){
+
 		fprintf(stderr, "%s: erro ao abrir o ficheiro\n",exe);
 		return -1;
+
 	}
+
 	while(fscanf(f,"%s",auxiliar)==1){	
+
 		if(strcmp(auxiliar, username)==0){
+			if(conta_users > 1)
+				for(i = 0; i < conta_users; i++)
+				{
+					if(strcmp(users_nome[i],username)==0){
+						conta_users--;
+						users = (int *) realloc(users,conta_users * sizeof(int));
+						return 0;
+					}
+						
+				}			
+
+			if(conta_users > server1.MEDIT_MAXUSERS)				
+				return 0;	
+
+			if(conta_users == 1)
+			{				
+				
+				users_nome = (char **) malloc(server1.MEDIT_MAXUSERS * sizeof(char *));
+
+				for(i = 0; i < server1.MEDIT_MAXUSERS; i++)
+					users_nome[i] = (char *) malloc(9 * sizeof(char)); 
+
+				for(i=0; i < 8; i++)
+					users_nome[0][i]=username[i];				
+
+				users_nome[0][8] = '\0';
+
+			}
+			else
+				if(conta_users > 1){			
+
+					for(i=0; i < 8; i++)
+						users_nome[conta_users - 1][i]=username[i];				
+
+					users_nome[conta_users - 1][8] = '\0';
+
+				}
+
 			return 1;
-		}		
+
+		}	
+
 	}
+
 	fclose(f);
 	return 0;
+
 }
 
 void limpa(){
@@ -118,6 +191,11 @@ void * le_pipe (void * arg){
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		//Fazer verificações para a alocação de memória
 		user_to_kill=recebe.pid;
+		
+		for(i = 0; i < conta_users; i++)
+			if(user_to_kill = users[i])
+				strcpy(nome_to_kill, users_nome[i]);		
+		
 		if(conta_users==0){
 			users = (int *) malloc(sizeof(int));
 			conta_users++;
@@ -147,6 +225,7 @@ void * le_pipe (void * arg){
 			fprintf(stderr, "Erro ao abir a pipe cliente\n");
 			break;
 		}
+		resposta.pid=getpid();
 		resposta.muda=1;
 		resposta.valID=verifica_user(server1.MEDIT_FICHEIRO, recebe.nome, "client");
 		//vai devolver -1 se não abrir o ficheiro
@@ -275,6 +354,7 @@ void muda_server(char *arg)
 }
 
 void ambi(){
+
 	busca_ambiente(&server1);
 }
 
@@ -286,4 +366,22 @@ void mudaNPipes(int arg)
 void mudaMainPipe(char *arg)
 {
 	server1.MEDIT_NAME_PIPE_PRINCI = arg;
+}
+
+void mostraUsers()
+{
+	int i;
+	char c;
+
+	printf("Lista de Utilizadores: \n\n");
+	
+	for(i = 0; i < conta_users; i++)
+	{
+		
+		printf("Utilizador #%d: %s\n", i + 1, users_nome[i]);
+		
+	}
+
+	printf("\nClique numa tecla para sair...");
+	c=getchar();
 }

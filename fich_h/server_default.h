@@ -9,6 +9,7 @@
 #include "medit_default.h"
 
 typedef struct{
+    int pid;        //PID do server
     int estado;     //0 - Login   1 - Frases
     int muda;       //saber se já respondeu
     int perm;       //Saber se a linha está bem escrita (1) ou não (0)
@@ -30,5 +31,6 @@ void muda_server(char *arg);
 void ambi();
 void mudaNPipes(int arg);
 void mudaMainPipe(char *arg);
+void mostraUsers();
 
 #endif
