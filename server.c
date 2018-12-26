@@ -17,12 +17,8 @@
 
 int main(int argc, char *argv[]){
 
-<<<<<<< HEAD
-	int numPipes=MEDIT_NUM_PIPES_V, tamArgc, fd_server_pipe, fd_pipe[numPipes], fifoPrincipal, fifoPull[MEDIT_NUM_PIPES_V], i, fase, e, k;
-	char cline[20], lixo, *user,hostname[20], palavra1[20], palavra2[20], complementaPipe[MEDIT_NUM_PIPES_V], pipeFinal[MEDIT_NUM_PIPES_V+ 4];  
-=======
-	char cline[50], lixo, *user,hostname[20], palavra1[20], palavra2[20];
->>>>>>> a60a9c473d2e267e8da4ff1aaed23d1e46691993
+	int tamArgc, fd_server_pipe, fifoPrincipal, i, fase, e;
+	char cline[20], lixo, *user,hostname[20], palavra1[20], palavra2[20];  
 	gethostname(hostname,20);
 	pthread_t t_server, array_threads[numPipes];
 	void *estado;
