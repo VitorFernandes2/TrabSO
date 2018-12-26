@@ -18,6 +18,8 @@ typedef struct{
     int linha;      //linha para colocar a frase
 } servCli;
 
+int contaPipes();
+void sig_handler2(int signo);
 void pipe_ini(int *myFifo, char *nomePipe);
 int verifica_user(char *nomeFicheiro, char *username, char *exe);
 void limpa();

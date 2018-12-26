@@ -1,7 +1,9 @@
-export MEDIT_TIMEOUT_V=10
-export MEDIT_MAXUSERS_V=3
-export MEDIT_MAXLINES_V=15
-export MEDIT_MAXCOLUMNS_V=45
-export MEDIT_FICHEIRO_V="fich_db/medit.db"
-export MEDIT_NUM_PIPES_V=2
-export MEDIT_NAME_PIPE_PRINCI_V="pipe_princi"
+#!/bin/bash
+
+export MEDIT_TIMEOUT=10
+export MEDIT_MAXUSERS=3
+export MEDIT_MAXLINES=15
+export MEDIT_MAXCOLUMNS=45
+export MEDIT_FICHEIRO="fich_db/medit.db"
+export MEDIT_NUM_PIPES=2
+export MEDIT_NAME_PIPE_PRINCI="pipe_princi"

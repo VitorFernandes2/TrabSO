@@ -23,6 +23,11 @@
 int conta_users, *users, user_to_kill;
 static server server1;
 
+int contaPipes(){
+	busca_ambiente(&server1);
+	return server1.MEDIT_NUM_PIPES;
+}
+
 void sig_handler2(int signo)
 {
 	int encontrou, i;
@@ -88,7 +93,6 @@ void settings(){
 	printf("\nNumero de pipes: %d", server1.MEDIT_NUM_PIPES);
 	printf("\nO nome da named pipe principal e: %s\n",server1.MEDIT_NAME_PIPE_PRINCI);
 	printf("\nClique numa tecla para sair...");
-	c=getchar();
 	c=getchar();
 }
 
@@ -163,14 +167,11 @@ void * le_pipe1 (void * arg){
 
 	fd= *(int*) arg;
 	servCli envia;
-    cliServ recebe;
+    	cliServ recebe;
 
 	signal(SIGUSR1, kill_thread);
 	signal(SIGUSR2, sig_handler2);
 
-	if( (fd=open("pipe1", O_RDWR))==-1){
-		fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
-	}
 
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		i=0;
