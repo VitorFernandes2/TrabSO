@@ -38,7 +38,7 @@ void * le_pipe_Cli (void * arg){
 	servCli *recebe;
 	recebe = (servCli*) arg;
 	
-    myPID=getpid();
+    	myPID=getpid();
 	sprintf(myPipe, "%d", myPID);
 
 	if( (fd=open(myPipe, O_RDWR))==-1){
