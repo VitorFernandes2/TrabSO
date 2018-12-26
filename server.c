@@ -17,7 +17,7 @@
 
 int main(int argc, char *argv[]){
 
-	char cline[20], lixo, *user,hostname[20], palavra1[20], palavra2[20];
+	char cline[50], lixo, *user,hostname[20], palavra1[20], palavra2[20];
 	gethostname(hostname,20);
 	int tamArgc, fd_server_pipe, fd_pipe1, fifoPrincipal, fifoPull, i, fase, e;
 	pthread_t t_server, t_pipe1;
@@ -96,9 +96,11 @@ int main(int argc, char *argv[]){
 		printf("\nusers");
 		printf("\ntext");
 		printf("\nshutdown");
+
 		printf("\n\n%s@%s:~$ ",user,hostname);
 		fflush(stdin);
-		scanf("%[^\n]", cline);
+		fflush(stdout);
+		fgets(cline, 50, stdin);
 
 		i = 0;
 
@@ -112,13 +114,13 @@ int main(int argc, char *argv[]){
 			if(fase == 0)
 			{
 				
-				if (cline[i] != ' '  && cline[i] != '\t') {
+				if (cline[i] != ' '  && cline[i] != '\t' && cline[i] != '\n') {
 					palavra1[e] = cline[i];
+					palavra1[e + 1] = '\0';
 					e++;
 				}
 				else
 				{
-					palavra1[e] = '\0';
 					fase++;
 					e = 0;
 				}
@@ -127,7 +129,7 @@ int main(int argc, char *argv[]){
 			else
 			{
 
-				if (cline[i] != ' ' && cline[i] != '\t') {
+				if (cline[i] != ' ' && cline[i] != '\t' && cline[i] != '\n') {
 					palavra2[e] = cline[i];
 					e++;
 				}
@@ -145,8 +147,10 @@ int main(int argc, char *argv[]){
 			}			
 
 		}
-		printf("%s\n",palavra1);
-		/* if(strcmp(palavra1, "settings")==0){
+		palavra1[19]='\0';
+		palavra2[19]='\0';
+		
+		if(strcmp(palavra1, "settings")==0){
 			settings();
 			fflush(stdout);
 		}
@@ -171,11 +175,11 @@ int main(int argc, char *argv[]){
 								printf("users\n");
 							}					
 							else
-								if(strcmp(cline, "shutdown")!=0){			
-									printf("%s: comando nao disponivel\n", cline);	
-								} */
+								if(strcmp(palavra1, "shutdown")!=0){			
+									printf("%s: comando nao disponivel\n", palavra1);	
+								}
 
-	}while(strcmp(cline, "shutdown")!=0);	
+	}while(strcmp(palavra1, "shutdown")!=0);	
 	//fazer ciclo para matar todos os clientes
 	
 	pthread_kill(t_server, SIGUSR1);
