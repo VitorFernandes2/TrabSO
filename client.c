@@ -32,23 +32,24 @@ int main(int argc, char *argv[])
 	busca_ambiente(&server);
 
 	if(argc!=1){
-		while((i = getopt(argc, argv, "u:p:n:")) != -1){
+
+		while((i = getopt(argc, argv, "u:")) != -1){
+
 			switch(i){
+
 				case 'u':
 					var_nome = optarg;
 					break;
-				case 'n':
-					server.MEDIT_NAME_PIPE_PRINCI=optarg;
-					break;
-				case 'p':
-					server.MEDIT_NUM_PIPES= atoi(optarg);				
-					break;
+				
 				default:
 					fprintf(stderr, "Opcao invalida!\n");
 					exit(-1);
 					break;
+
 			}
-		} 			
+
+		} 	
+				
 	}
 
 	if(var_nome==NULL){

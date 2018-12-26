@@ -4,6 +4,8 @@
         "stdio.h": "c",
         "medit_default.h": "c",
         "curses.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "server_default.h": "c",
+        "unistd.h": "c"
     }
 }

@@ -21,6 +21,7 @@
 /*------------------------------*/
 
 int conta_users, *users, user_to_kill;
+static server server1;
 
 void sig_handler2(int signo)
 {
@@ -77,15 +78,15 @@ void limpa(){
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
 
-void settings(server *server){
+void settings(){
 	int c;
 	limpa();
-	printf("\nNumero maximo de linhas: %d", server->MEDIT_MAXLINES);
-	printf("\nNumero maximo de colunas: %d", server->MEDIT_MAXCOLUMNS);
-	printf("\nNome do ficheiro da base de dados: %s", server->MEDIT_FICHEIRO);
-	printf("\nNumero maximo de users a editar: %d", server->MEDIT_MAXUSERS);
-	printf("\nNumero de pipes: %d", server->MEDIT_NUM_PIPES);
-	printf("\nO nome da named pipe principal e: %s\n",server->MEDIT_NAME_PIPE_PRINCI);
+	printf("\nNumero maximo de linhas: %d", server1.MEDIT_MAXLINES);
+	printf("\nNumero maximo de colunas: %d", server1.MEDIT_MAXCOLUMNS);
+	printf("\nNome do ficheiro da base de dados: %s", server1.MEDIT_FICHEIRO);
+	printf("\nNumero maximo de users a editar: %d", server1.MEDIT_MAXUSERS);
+	printf("\nNumero de pipes: %d", server1.MEDIT_NUM_PIPES);
+	printf("\nO nome da named pipe principal e: %s\n",server1.MEDIT_NAME_PIPE_PRINCI);
 	printf("\nClique numa tecla para sair...");
 	c=getchar();
 	c=getchar();
@@ -147,7 +148,7 @@ void * le_pipe (void * arg){
 			break;
 		}
 		resposta.muda=1;
-		resposta.valID=verifica_user(recebe.ficheiro, recebe.nome, "client");
+		resposta.valID=verifica_user(server1.MEDIT_FICHEIRO, recebe.nome, "client");
 		//vai devolver -1 se não abrir o ficheiro
 		//vai devolver 1 no caso de dar certo 
 		//vai devolver 0 no caso de dar errado
@@ -163,8 +164,6 @@ void * le_pipe1 (void * arg){
 	fd= *(int*) arg;
 	servCli envia;
     cliServ recebe;
-	server server;
-	busca_ambiente(&server);
 
 	signal(SIGUSR1, kill_thread);
 	signal(SIGUSR2, sig_handler2);
@@ -268,4 +267,23 @@ void verificaErros(char *palavra, char *c){
 		}		
 		break;
 	}	
+}
+
+void muda_server(char *arg)
+{	
+	server1.MEDIT_FICHEIRO = arg;	
+}
+
+void ambi(){
+	busca_ambiente(&server1);
+}
+
+void mudaNPipes(int arg)
+{
+	server1.MEDIT_NUM_PIPES = arg;
+}
+
+void mudaMainPipe(char *arg)
+{
+	server1.MEDIT_NAME_PIPE_PRINCI = arg;
 }

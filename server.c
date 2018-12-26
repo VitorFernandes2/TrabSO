@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <sys/errno.h>
 #include <pthread.h>
 #include <signal.h>
@@ -15,22 +16,57 @@
 
 
 int main(int argc, char *argv[]){
-	server server;
-	char cline[20], lixo, *user,hostname[20];
+
+	char cline[20], lixo, *user,hostname[20], palavra1[20], palavra2[20];
 	gethostname(hostname,20);
-	int tamArgc, fd_server_pipe, fd_pipe1, fifoPrincipal, fifoPull, i;
+	int tamArgc, fd_server_pipe, fd_pipe1, fifoPrincipal, fifoPull, i, fase, e;
 	pthread_t t_server, t_pipe1;
 	void *estado;
 
 	user=getenv("USER");
-
+	ambi();
 	
 	if(argc!=1){
-		for(tamArgc=1; tamArgc<argc; tamArgc++){
-			fprintf(stderr, "\n%s: comando invalido", argv[tamArgc]);
-		}
-		fprintf(stderr, "\nSintaxe: executavel\n");
-		exit(-1);
+
+		while((i = getopt(argc, argv, "f:p:n:")) != -1){
+
+			switch(i){
+
+				case 'f':
+					muda_server(optarg);
+					break;
+
+				case 'n':
+					printf("%s\n",optarg);
+
+					for(i = 0; optarg[i] != '\0'; i++){
+
+						if(optarg[i] < '0' || optarg[i] > '9')
+						{
+							
+							fprintf(stderr, "Argumento do -n errado tem de meter apenas numeros inteiros!");
+							exit(-1);
+
+						}
+							
+					}
+					mudaNPipes(atoi(optarg));
+					break;
+
+				case 'p':
+					printf("%s\n",optarg);
+					mudaMainPipe(optarg);				
+					break;
+
+				default:
+					fprintf(stderr, "Opcao invalida!\n");
+					exit(-1);
+					break;
+
+			}
+
+		} 
+
 	}
 
 	pipe_ini(&fifoPrincipal, MEDIT_NAME_PIPE_PRINCI_V);
@@ -44,7 +80,12 @@ int main(int argc, char *argv[]){
 		fprintf(stderr, "\nErro: criacao da thread no server de leitura da pipe 1\n");
 	}
 		
-	do{
+	do{		
+
+		strcpy(palavra1, "");
+		strcpy(palavra2, "");
+		strcpy(cline, "");
+
 		limpa();
 		printf("\nServidor:");
 		printf("\nsettings");
@@ -57,17 +98,83 @@ int main(int argc, char *argv[]){
 		printf("\nshutdown");
 		printf("\n\n%s@%s:~$ ",user,hostname);
 		fflush(stdin);
-		scanf("%s", cline);
+		scanf("%[^\n]", cline);
 
-		if(strcmp(cline, "settings")==0){		
-			busca_ambiente(&server);
-			settings(&server);
+		i = 0;
+
+		while(cline[i] == ' ' || cline[i] == '\t')
+		{
+			i++;
+		}
+
+		for(fase = 0, e = 0; cline[i] != '\0'; i++){
+			
+			if(fase == 0)
+			{
+				
+				if (cline[i] != ' '  && cline[i] != '\t') {
+					palavra1[e] = cline[i];
+					e++;
+				}
+				else
+				{
+					palavra1[e] = '\0';
+					fase++;
+					e = 0;
+				}
+
+			}			
+			else
+			{
+
+				if (cline[i] != ' ' && cline[i] != '\t') {
+					palavra2[e] = cline[i];
+					e++;
+				}
+				else
+				{
+					palavra2[e] = '\0';
+					e = 0;
+				}
+
+			}
+
+			while(cline[i+1] == ' ' || cline[i+1] == '\t')
+			{
+				i++;
+			}			
+
+		}
+		printf("%s\n",palavra1);
+		/* if(strcmp(palavra1, "settings")==0){
+			settings();
 			fflush(stdout);
 		}
 		else
-			if(strcmp(cline, "shutdown")!=0){			
-				printf("%s: comando nao disponivel\n", cline);	
-			}		
+			if(strcmp(palavra1, "load")==0){
+				printf("load\n");
+			}
+			else
+				if(strcmp(palavra1, "save")==0){
+					printf("save\n");
+				}
+				else
+					if(strcmp(palavra1, "free")==0){
+						printf("free\n");
+					}					
+					else						
+						if (strcmp(palavra1, "statistics")==0) {
+							printf("statistics\n");
+						}
+						else
+							if(strcmp(palavra1, "users")==0){
+								printf("users\n");
+							}					
+							else
+								if(strcmp(cline, "shutdown")!=0){			
+									printf("%s: comando nao disponivel\n", cline);	
+								} */
+
 	}while(strcmp(cline, "shutdown")!=0);	
 	//fazer ciclo para matar todos os clientes
 	

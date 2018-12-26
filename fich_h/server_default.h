@@ -21,10 +21,14 @@ typedef struct{
 void pipe_ini(int *myFifo, char *nomePipe);
 int verifica_user(char *nomeFicheiro, char *username, char *exe);
 void limpa();
-void settings(server *server);
+void settings();
 void kill_thread();
 void * le_pipe (void * arg);
 void * le_pipe1 (void * arg);
 void verificaErros(char *frase, char *c);
+void muda_server(char *arg);
+void ambi();
+void mudaNPipes(int arg);
+void mudaMainPipe(char *arg);
 
 #endif
