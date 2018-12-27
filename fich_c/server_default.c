@@ -275,7 +275,7 @@ void * le_pipe1 (void * arg){
 		sprintf(myPipe, "%d", myPID);
 
 		if( (fd2=open(myPipe, O_WRONLY))==-1){
-			fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
+			fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
 		}
 		
 		if(ver>0){
@@ -407,7 +407,7 @@ void inicio_matriz()
 
 void liberta_matriz()
 {
-	
+
 	for(int i = 0; i < server1.MEDIT_MAXLINES; i++)
     	free(matriz[i]);
 	free(matriz);

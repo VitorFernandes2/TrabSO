@@ -72,7 +72,6 @@ int main(int argc, char *argv[]){
 	inicio_matriz();
 
 	pipe_ini(&fifoPrincipal, MEDIT_NAME_PIPE_PRINCI_V);
-	pipe_ini(fifoPull, "pipe1");
 	
 	if((pthread_create(&t_server, NULL, le_pipe, (void *)&fd_server_pipe))==-1){
 		fprintf(stderr, "\nErro: criacao da thread principal do server\n");
@@ -199,7 +198,6 @@ int main(int argc, char *argv[]){
 		remove(complementaPipe);
 	}
 
-	remove("pipe1");
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	liberta_users();
 	liberta_matriz();
