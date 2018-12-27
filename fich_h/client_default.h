@@ -21,9 +21,11 @@ typedef struct{
     int pid;        //PID de cada ciente
     char nome[9];   //Nome de cada cliente
     char Frase[45];    //Frase de cada linha -> iguala com a variavel linha do documento
+    char caracter;     //Método para enviar dados ao servidor
     char ficheiro[40];
     int resposta;
     int linha;
+    int coluna;
 }cliServ;
 
 void * le_pipe_Cli (void * arg);

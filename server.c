@@ -198,10 +198,6 @@ int main(int argc, char *argv[]){
 		pthread_kill(array_threads[k], SIGUSR1);
 		remove(complementaPipe);
 	}
-<<<<<<< HEAD
-=======
-
->>>>>>> ea0655c59188c65176379313cdf897ca39823d55
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	liberta_users();
 	liberta_matriz();
