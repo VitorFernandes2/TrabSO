@@ -202,6 +202,7 @@ int main(int argc, char *argv[]){
 	remove("pipe1");
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	liberta_users();
+	liberta_matriz();
 
 	exit(0);
 }

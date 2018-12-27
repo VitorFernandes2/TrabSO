@@ -391,11 +391,26 @@ void mostraUsers()
 
 void inicio_matriz()
 {
-	matriz = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char));
+
+	int i;
+
+	matriz = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
+	
+	for(i = 0; i < server1.MEDIT_MAXLINES; i++)
+	{
+		
+		matriz[i] = (char *) malloc(server1.MEDIT_MAXCOLUMNS * sizeof(char));
+
+	}
+	
 }
 
 void liberta_matriz()
 {
+	
+	for(int i = 0; i < server1.MEDIT_MAXLINES; i++)
+    	free(matriz[i]);
+	free(matriz);
 
 }
 
