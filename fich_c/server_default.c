@@ -21,7 +21,7 @@
 /*------------------------------*/
 
 int conta_users, *users, user_to_kill;
-char **users_nome, nome_to_kill[9];
+char **users_nome, nome_to_kill[9], **matriz;
 static server server1;
 
 int contaPipes(){
@@ -100,8 +100,7 @@ int verifica_user(char *nomeFicheiro, char *username, char *exe){
 
 	}
 
-	while(fscanf(f,"%s",auxiliar)==1){	
-
+	while(fscanf(f,"%s",auxiliar)==1){
 		if(strcmp(auxiliar, username)==0){
 			if(conta_users > 1)
 				for(i = 0; i < conta_users; i++)
@@ -109,6 +108,7 @@ int verifica_user(char *nomeFicheiro, char *username, char *exe){
 					if(strcmp(users_nome[i],username)==0){
 						conta_users--;
 						users = (int *) realloc(users,conta_users * sizeof(int));
+						fclose(f);
 						return 0;
 					}
 						
@@ -171,10 +171,11 @@ void settings(){
 
 void kill_thread(){
 	int i;
+
 	for(i=0; i < conta_users; i++){
 		kill(users[i], SIGUSR1);
 	}
-	free(users);
+	
 	pthread_exit(0);
 }
 
@@ -294,7 +295,8 @@ void * le_pipe1 (void * arg){
 	}	
 }
 
-void verificaErros(char *palavra, char *c){
+void verificaErros(char *palavra, char *c)
+{
 
 	int i=0, j, toaspell_pipe[2], fromaspell_pipe[2];
 	char sugestao[200], token[200];
@@ -308,44 +310,44 @@ void verificaErros(char *palavra, char *c){
 	}
 		
 	switch(fork()){
-	case -1:
-		fprintf(stderr, "\nErro no fork()\n");
-		break;
-	case 0:
-		dup2(toaspell_pipe[0], STDIN_FILENO);
-		dup2(fromaspell_pipe[1], STDOUT_FILENO);
-		close(toaspell_pipe[1]);
-		close(fromaspell_pipe[0]);
-		execlp("aspell", "aspell", "-a", (char*) NULL);
-		break;
-	default:		
-		close(toaspell_pipe[0]);
-		write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
-		close(toaspell_pipe[1]);
-		
-		wait(NULL);
+		case -1:
+			fprintf(stderr, "\nErro no fork()\n");
+			break;
+		case 0:
+			dup2(toaspell_pipe[0], STDIN_FILENO);
+			dup2(fromaspell_pipe[1], STDOUT_FILENO);
+			close(toaspell_pipe[1]);
+			close(fromaspell_pipe[0]);
+			execlp("aspell", "aspell", "-a", (char*) NULL);
+			break;
+		default:		
+			close(toaspell_pipe[0]);
+			write(toaspell_pipe[1], palavra, strlen(palavra)+1); 
+			close(toaspell_pipe[1]);
+			
+			wait(NULL);
 
-		close(fromaspell_pipe[1]);				
-		read(fromaspell_pipe[0], sugestao, 200); 
-		close(fromaspell_pipe[0]);	
+			close(fromaspell_pipe[1]);				
+			read(fromaspell_pipe[0], sugestao, 200); 
+			close(fromaspell_pipe[0]);	
 
-		strcpy(token,strtok(sugestao,sign));
+			strcpy(token,strtok(sugestao,sign));
 
-		while( token[0] != '\0') {
-			switch(token[0]){
-				case '&':
-				case '*':
-				case '+':
-				case '#':
-					*c=token[0];
-					token[0]='\0';
-					break;
-				default:
-					strcpy(token,strtok(NULL,sign));
-					break;
-			}			
-		}		
-		break;
+			while( token[0] != '\0') {
+				switch(token[0]){
+					case '&':
+					case '*':
+					case '+':
+					case '#':
+						*c=token[0];
+						token[0]='\0';
+						break;
+					default:
+						strcpy(token,strtok(NULL,sign));
+						break;
+				}			
+			}		
+			break;
 	}	
 }
 
@@ -354,8 +356,8 @@ void muda_server(char *arg)
 	server1.MEDIT_FICHEIRO = arg;	
 }
 
-void ambi(){
-
+void ambi()
+{
 	busca_ambiente(&server1);
 }
 
@@ -385,4 +387,19 @@ void mostraUsers()
 
 	printf("\nClique numa tecla para sair...");
 	c=getchar();
+}
+
+void inicio_matriz()
+{
+	matriz = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char));
+}
+
+void liberta_matriz()
+{
+
+}
+
+void liberta_users()
+{
+	free(users);
 }

@@ -69,6 +69,8 @@ int main(int argc, char *argv[]){
 
 	}
 
+	inicio_matriz();
+
 	pipe_ini(&fifoPrincipal, MEDIT_NAME_PIPE_PRINCI_V);
 	pipe_ini(fifoPull, "pipe1");
 	
@@ -194,11 +196,12 @@ int main(int argc, char *argv[]){
 	for(k=0; k < numPipes; k++){
 		sprintf(complementaPipe, "%d", k);
 		pthread_kill(array_threads[k], SIGUSR1);
-		//pthread_join(array_threads[k], &estado);
 		remove(complementaPipe);
 	}
 
-	//pthread_join(t_server, &estado);
+	remove("pipe1");
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
+	liberta_users();
+
 	exit(0);
 }
