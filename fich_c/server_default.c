@@ -272,21 +272,60 @@ void * le_pipe1 (void * arg){
 
 
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
-		i=0;
+		j=0;
 		ver=0;
-		for(j=0; j < MEDIT_MAXCOLUMNS_V; j++){		
-			while(recebe.Frase[j]==' ')
-				j++;
-			palavra[i]=recebe.Frase[j];
-			i++;
-			if(recebe.Frase[j+1]==' ' || recebe.Frase[j+1]=='\0'){
-				palavra[i]='\0';
-				i=0;
-				verificaErros(palavra, &c);
-				if(c != '*'){
-					ver++;
+
+		if(recebe.caracter=='\n'){			
+
+			for(i = 0; i < server1.MEDIT_MAXCOLUMNS; i++)
+			{
+				
+				if(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n')
+				{
+					palavra[j]='\0';
+
+					verificaErros(palavra, &c);
+					if(c != '*'){
+						ver++;
+					} 
+
+					while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
+						i++;
+					}
+					i--;
+					j=0;
+				}				
+				else
+				{
+					palavra[j] = matriz[recebe.linha][i];
+					j++;
 				}
-			}			
+				
+			}					
+			
+		}
+		else	//se for letra ou caracter especial vai para a posição da matriz
+		{
+			//Fazer validações da matriz
+
+
+			//Caso seja caracter
+
+
+			//Caso seja backspace
+
+
+			//caso seja esc
+
+
+			//caso seja del
+
+
+			matriz[recebe.linha][recebe.coluna] = recebe.caracter;
+			fprintf(stderr,"%c\n",matriz[recebe.linha][recebe.coluna]);
+
+			//Correr todos os clientes e mandar os caracteres
+
 		}
 
 		myPID=recebe.pid;
@@ -411,7 +450,7 @@ void mostraUsers()
 void inicio_matriz()
 {
 
-	int i;
+	int i, j;
 
 	matriz = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
 	
@@ -422,6 +461,16 @@ void inicio_matriz()
 
 	}
 	
+	for(i = 0; i < server1.MEDIT_MAXLINES; i++)
+	{
+		
+		for(j = 0; j < server1.MEDIT_MAXCOLUMNS; j++)
+		{
+			matriz[i][j] = ' ';
+		}
+		
+	}
+		
 }
 
 void liberta_matriz()
@@ -436,4 +485,16 @@ void liberta_matriz()
 void liberta_users()
 {
 	free(users);
+}
+
+void backspaceServer(int x, int y){
+    int i;
+    char c;
+    if(x > 0){
+        for(i = x; i < server1.MEDIT_MAXCOLUMNS - 1; i++){
+            c = matriz[y][i + 1];
+			matriz[y][i] = c;
+        }
+		matriz[y][server1.MEDIT_MAXCOLUMNS - 1] = ' ';
+    }    
 }

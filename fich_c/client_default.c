@@ -274,23 +274,20 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
         if(ch == KEY_BACKSPACE){
             backspace(posx,posy,server);
         }
-        if(ch >= 32 && ch <= 126){ //Entrada de números,letras e alguns char especiais            
+        if(ch >= 32 && ch <= 126){ //Entrada de números,letras e alguns char especiais  
+
             if(valida_texto(posx,posy,server)==1){
-                mvprintw((*posy), (*posx), "%c", ch);                
+
+                mvprintw((*posy), (*posx), "%c", ch);    
+
                 if((*posx)< server->MEDIT_MAXCOLUMNS + 6){
                     (*posx)++;
-                } 
-            }                        
-        }
-        if(ch==27){ //ESC
-            escape(posy, linha, server);
-        }
-        else
-            if(ch==10){
-                envio->linha = (*posy) - 4;
-                apanha_linha(posy, linha2, server);
-                strcpy(envio->Frase, linha2);
-                c = mvinch((*posy),(*posx));l
+                }
+                
+                envio->linha = (*posy) - 5;
+                envio->coluna = (*posx) - 8;
+                envio->caracter = ch;
+
                 if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
                     endwin();
                     fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
@@ -298,6 +295,31 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 }
 
                 ne = write(fd, envio, sizeof(cliServ));
+                close(fd);
+
+            } 
+
+        }
+        if(ch==27){ //ESC
+            escape(posy, linha, server);
+        }
+        else
+            if(ch==10){
+
+                envio->linha = (*posy) - 5;
+                envio->coluna = (*posx) - 8;
+                envio->caracter = '\n';
+                
+                c = mvinch((*posy),(*posx));
+
+                if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+                    endwin();
+                    fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
+                    exit(-1);
+                }
+
+                ne = write(fd, envio, sizeof(cliServ));
+                close(fd);
 
                 myPID=getpid();
 	            sprintf(myPipe, "%d", myPID);

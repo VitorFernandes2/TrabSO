@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	envio.pid=getpid();
 	envio.resposta=0;
 	respostas.muda=0;
-	strcpy(envio.ficheiro,server.MEDIT_FICHEIRO);
+	
 	//Criação das pipes de comunicação com o servidor
 	pipes_ini(&envio, &respostas, &fd_abrirE, &nw, myPID, &myFifo);	
 
