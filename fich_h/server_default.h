@@ -21,9 +21,10 @@ typedef struct{
 } servCli;
 
 int contaPipes();
+void inicializaContadorClientes();
 void sig_handler2(int signo);
 void pipe_ini(int *myFifo, char *nomePipe);
-int verifica_user(char *nomeFicheiro, char *username, char *exe);
+int verifica_user(char *nomeFicheiro, char *username, char *exe, char *nPipe);
 void limpa();
 void settings();
 void kill_thread();

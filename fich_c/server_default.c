@@ -20,20 +20,27 @@
 #include "../fich_h/client_default.h"
 /*------------------------------*/
 
-int conta_users, *users, user_to_kill;
+int conta_users, *users, user_to_kill, *contaClientes;
 char **users_nome, nome_to_kill[9], **matriz;
 static server server1;
 
 int contaPipes(){
-	busca_ambiente(&server1);
+	inicializaContadorClientes();
 	return server1.MEDIT_NUM_PIPES;
+}
+
+
+void inicializaContadorClientes(){
+
+	contaClientes= malloc(server1.MEDIT_NUM_PIPES*sizeof(int));
+
 }
 
 void sig_handler2(int signo)
 {
 	int encontrou, i, e;
 	encontrou=i=0;
-    if (signo == SIGUSR2){        
+    	if (signo == SIGUSR2){        
         for(i=0; i<conta_users;i++){
 			if(users[i]==user_to_kill){
 				if(i!=conta_users-1){
@@ -87,11 +94,11 @@ void pipe_ini(int *myFifo, char *nomePipe){
 	}
 }
 
-int verifica_user(char *nomeFicheiro, char *username, char *exe){
+int verifica_user(char *nomeFicheiro, char *username, char *exe, char *nPipe){
 
 	FILE *f;
 	char auxiliar[9];
-	int i;
+	int i, aux, l, minimo;
 
 	if((f=fopen(nomeFicheiro,"r"))==NULL){
 
@@ -130,6 +137,9 @@ int verifica_user(char *nomeFicheiro, char *username, char *exe){
 
 				users_nome[0][8] = '\0';
 
+				contaClientes[0]=1;
+				sprintf(nPipe, "%d", 0);
+
 			}
 			else
 				if(conta_users > 1){			
@@ -138,7 +148,16 @@ int verifica_user(char *nomeFicheiro, char *username, char *exe){
 						users_nome[conta_users - 1][i]=username[i];				
 
 					users_nome[conta_users - 1][8] = '\0';
-
+			
+					aux=0;
+					minimo=contaClientes[0];
+					for(l=1; l<=server1.MEDIT_NUM_PIPES; l++){
+						if(contaClientes[l]<contaClientes[l-1] && contaClientes[l]<minimo){
+							aux=l;
+							minimo=contaClientes[l];
+						}
+					}
+					sprintf(nPipe, "%d", aux);
 				}
 
 			return 1;
@@ -224,7 +243,6 @@ void * le_pipe (void * arg){
 		}
 
 		resposta.estado=0;
-		strcpy(resposta.fifo_serv, "pipe1");
 		sprintf(pipePID, "%d", recebe.pid);
 		if( (fd_abrirE=open(pipePID, O_WRONLY))<0){
 			fprintf(stderr, "Erro ao abir a pipe cliente\n");
@@ -232,7 +250,7 @@ void * le_pipe (void * arg){
 		}
 		resposta.pid=getpid();
 		resposta.muda=1;
-		resposta.valID=verifica_user(server1.MEDIT_FICHEIRO, recebe.nome, "client");
+		resposta.valID=verifica_user(server1.MEDIT_FICHEIRO, recebe.nome, "client", resposta.fifo_serv);
 		//vai devolver -1 se não abrir o ficheiro
 		//vai devolver 1 no caso de dar certo 
 		//vai devolver 0 no caso de dar errado
@@ -278,17 +296,18 @@ void * le_pipe1 (void * arg){
 			fprintf(stderr, "\nErro ao abir a pipe de leitura\n");
 		}
 		
+		
 		if(ver>0){
 			envia.estado=1;
 			envia.muda=1;
-			strcpy(envia.fifo_serv,"pipe1");
+			strcpy(envia.fifo_serv,"0");
 			envia.perm=0;
 			nw = write(fd2,&envia,sizeof(servCli));
 		}
 		else{
 			envia.estado=1;
 			envia.muda=1;
-			strcpy(envia.fifo_serv,"pipe1");
+			strcpy(envia.fifo_serv,"0");
 			envia.perm=1;
 			nw = write(fd2,&envia,sizeof(servCli));
 		}

@@ -290,8 +290,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 envio->linha = (*posy) - 4;
                 apanha_linha(posy, linha2, server);
                 strcpy(envio->Frase, linha2);
-                c = mvinch((*posy),(*posx));
-
+                c = mvinch((*posy),(*posx));l
                 if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
                     endwin();
                     fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");

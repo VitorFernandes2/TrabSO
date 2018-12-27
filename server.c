@@ -22,7 +22,6 @@ int main(int argc, char *argv[]){
 	pthread_t t_server, array_threads[numPipes];
 
 	void *estado;
-
 	user=getenv("USER");
 	ambi();
 	
@@ -72,12 +71,13 @@ int main(int argc, char *argv[]){
 	inicio_matriz();
 
 	pipe_ini(&fifoPrincipal, MEDIT_NAME_PIPE_PRINCI_V);
-	pipe_ini(fifoPull, "pipe1");
 	
 	if((pthread_create(&t_server, NULL, le_pipe, (void *)&fd_server_pipe))==-1){
 		fprintf(stderr, "\nErro: criacao da thread principal do server\n");
 	}
 
+	numPipes=contaPipes();
+	printf("%d", numPipes);
 	for(k=0; k<numPipes; k++){
 		sprintf(complementaPipe, "%d", k);
 		pipe_ini(&fifoPull[k], complementaPipe);
@@ -198,8 +198,6 @@ int main(int argc, char *argv[]){
 		pthread_kill(array_threads[k], SIGUSR1);
 		remove(complementaPipe);
 	}
-
-	remove("pipe1");
 	remove(MEDIT_NAME_PIPE_PRINCI_V);
 	liberta_users();
 	liberta_matriz();
