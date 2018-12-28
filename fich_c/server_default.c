@@ -22,8 +22,12 @@
 /*------------------------------*/
 
 int conta_users, *users, user_to_kill, *contaClientes;
-char **users_nome, nome_to_kill[9], **matriz, **matrizP;
+char **users_nome, nome_to_kill[9], **matriz, **matrizP, *ocupantesL;
 static server server1;
+pthread_mutex_t *lock;
+
+//ocupantesL está iniciada a -1
+//existem tantas lock como linhas (uma por cada)
 
 int contaPipes(){
 	inicializaContadorClientes();
@@ -520,9 +524,12 @@ void inicio_matriz()
 {
 
 	int i, j;
+	
+	lock = (pthread_mutex_t *) malloc(server1.MEDIT_MAXLINES * sizeof(pthread_mutex_t)); 
+	ocupantesL = (int *)malloc(server1.MEDIT_MAXLINES * sizeof(int));
 
 	matriz = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
-	
+
 	for(i = 0; i < server1.MEDIT_MAXLINES; i++)
 	{
 		
@@ -547,7 +554,7 @@ void inicio_matriz()
 			matriz[i][j] = ' ';
 			matrizP[i][j] = ' ';
 		}
-		
+		ocupantesL[i] = -1;
 	}
 		
 }
