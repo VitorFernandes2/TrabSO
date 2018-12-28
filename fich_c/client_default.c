@@ -249,6 +249,8 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
     linha=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
     linha2=malloc(server->MEDIT_MAXCOLUMNS*sizeof(char));
     i=0;
+
+    //Mandar Aqui uma pergunta ao servidor para saber se a linha está ocupada
     
     for(i=0; i<server->MEDIT_MAXCOLUMNS; i++){
         *(linha + i) = ' ';
@@ -383,7 +385,8 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 }  
                 else{
                     ch=10;
-                }              
+                }
+                close(fd2);              
             }
     }while(ch != 27 && ch != 10);
 }

@@ -331,6 +331,13 @@ void * le_pipe1 (void * arg){
 		j=0;
 		ver=0;
 		printf("%d\n", recebe.caracter);
+
+		//Ver se o mutex está ocupado
+		//Se não estiver dá-se lock
+		//Senão retorna-se algo de modo ao cliente sair do modo edição
+		//POSSIVEL TRUQUE
+		//retornar o valor de 10 (enter no caracter) para ele entrar e sair logo
+
 		if(recebe.caracter=='\n'){			
 
 			for(i = 0; i < server1.MEDIT_MAXCOLUMNS; i++)
