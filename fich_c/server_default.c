@@ -21,8 +21,8 @@
 #include "../fich_h/client_default.h"
 /*------------------------------*/
 
-int conta_users, *users, user_to_kill, *contaClientes;
-char **users_nome, nome_to_kill[9], **matriz, **matrizP, *ocupantesL;
+int conta_users, *users, user_to_kill, *contaClientes, *ocupantesL;
+char **users_nome, nome_to_kill[9], **matriz, **matrizP;
 static server server1;
 pthread_mutex_t *lock;
 
@@ -526,7 +526,7 @@ void inicio_matriz()
 	int i, j;
 	
 	lock = (pthread_mutex_t *) malloc(server1.MEDIT_MAXLINES * sizeof(pthread_mutex_t)); 
-	ocupantesL = (int *)malloc(server1.MEDIT_MAXLINES * sizeof(int));
+	ocupantesL = (int *) malloc(server1.MEDIT_MAXLINES * sizeof(int));
 
 	matriz = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
 
