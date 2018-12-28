@@ -263,11 +263,6 @@ void * le_pipe (void * arg){
 	}	
 }
 
-void escapeServer(int c, int y)
-{
-
-}
-
 void backspaceServer(int x, int y, char c1)
 {
 
@@ -341,22 +336,31 @@ void * le_pipe1 (void * arg){
 		//retornar o valor de 10 (enter no caracter) para ele entrar e sair logo
 
 		//Verifica se a linha está ocupada
-		if(pthread_mutex_trylock(&lock[recebe.linha]) == EBUSY)	//EBUSY significa que está ocupado
-		{
-			printf("Adeus\n");
-			if(ocupantesL[recebe.linha] != recebe.pid){
+		
+		if(ocupantesL[recebe.linha] != recebe.pid && ocupantesL[recebe.linha] != -1){
 			
-				//envia ao cliente para sair
-			
+			myPID=recebe.pid;
+			sprintf(myPipe, "%d", myPID);
+
+			if( (fd2=open(myPipe, O_WRONLY))==-1){
+				fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
 			}
 
+			envia.estado=2;
+			envia.muda=1;
+			strcpy(envia.fifo_serv,"0");
+			envia.perm=1;
+			nw = write(fd2,&envia,sizeof(servCli));
+
+			close(fd2);
+		
 		}
 		else
 		{
 			printf("ola\n");
-			pthread_mutex_lock(&lock[recebe.linha]);
+			printf("\n1->%d\n", ocupantesL[recebe.linha]);
 			ocupantesL[recebe.linha] = recebe.pid;
-			printf("->%d\n", ocupantesL[recebe.linha]);
+			printf("\n2->%d\n", ocupantesL[recebe.linha]);	
 		}
 
 		
@@ -396,7 +400,6 @@ void * le_pipe1 (void * arg){
 				{
 
 					strcpy(matrizP[recebe.linha], matriz[recebe.linha]);
-					pthread_mutex_unlock(&lock[recebe.linha]);
 					ocupantesL[recebe.linha] = -1;
 
 				}
@@ -452,6 +455,8 @@ void * le_pipe1 (void * arg){
 				envia.perm=1;
 				nw = write(fd2,&envia,sizeof(servCli));
 			}
+
+			close(fd2);
 
 		}
 		

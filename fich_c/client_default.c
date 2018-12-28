@@ -251,7 +251,37 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
     i=0;
 
     //Mandar Aqui uma pergunta ao servidor para saber se a linha está ocupada
+    envio->linha = (*posy) - 5;
+    envio->pid = getpid();
+    envio->estado = 2;
+
+    if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+        endwin();
+        fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
+        exit(-1);
+    }
+
+    ne = write(fd, envio, sizeof(cliServ));
+    close(fd);
+
+    myPID=getpid();
+    sprintf(myPipe, "%d", myPID);
+
+    if( (fd2=open(myPipe, O_RDONLY))==-1){                    
+        endwin();
+        fprintf(stderr, "\nErro ao abir a pipe de leitura do cliente\n");
+        exit(-1);
+    }
     
+    respostas->muda=0;
+    while(respostas->muda==0){ 	//Espera pela resposta do servidor
+    }
+    
+    close(fd2);  
+    
+    if(respostas->estado == 2)
+        return;
+
     for(i=0; i<server->MEDIT_MAXCOLUMNS; i++){
         *(linha + i) = ' ';
     }
