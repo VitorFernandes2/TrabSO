@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <ncurses.h>
 #define PERM 0666
 
 /*------------------------------*/
@@ -21,7 +22,7 @@
 /*------------------------------*/
 
 int conta_users, *users, user_to_kill, *contaClientes;
-char **users_nome, nome_to_kill[9], **matriz;
+char **users_nome, nome_to_kill[9], **matriz, **matrizP;
 static server server1;
 
 int contaPipes(){
@@ -258,6 +259,61 @@ void * le_pipe (void * arg){
 	}	
 }
 
+void escapeServer(int c, int y)
+{
+
+}
+
+void backspaceServer(int x, int y, char c1)
+{
+
+    int i;
+    char c;
+
+	printf("%d %d\n", y, x);
+	if(x>=0)
+		for(i = x; i < server1.MEDIT_MAXCOLUMNS - 1; i++)
+		{
+			
+			matriz[y][i]=matriz[y][i + 1];
+			
+		}
+	matriz[y][server1.MEDIT_MAXCOLUMNS - 1] = ' ';
+
+}
+
+void deleteServer(int x, int y, char c1)
+{
+
+	int i;
+	char c;
+	printf("%d %d\n", y, x);
+	for(i = x; i < server1.MEDIT_MAXCOLUMNS - 1; i++)
+	{
+		if(i < server1.MEDIT_MAXCOLUMNS - 2)
+			matriz[y][i+1] = matriz[y][i + 2];
+		else
+			matriz[y][i+1] = ' ';
+		
+	}
+	matriz[y][i]=matriz[y][server1.MEDIT_MAXCOLUMNS - 1];
+
+}
+
+void valida_textoServer(int x, int y, char c1)
+{
+
+    int i;
+    char c;
+	for(i = server1.MEDIT_MAXCOLUMNS - 1; i > x; i--)
+	{		
+		matriz[y][i] = matriz[y][i - 1];
+	}
+	
+	matriz[y][x] = c1;
+
+}
+
 void * le_pipe1 (void * arg){
 	int fd, fd2, nr, nw, myPID;
 	int i=0, j, ver;
@@ -274,7 +330,7 @@ void * le_pipe1 (void * arg){
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
 		j=0;
 		ver=0;
-
+		printf("%d\n", recebe.caracter);
 		if(recebe.caracter=='\n'){			
 
 			for(i = 0; i < server1.MEDIT_MAXCOLUMNS; i++)
@@ -301,29 +357,35 @@ void * le_pipe1 (void * arg){
 					j++;
 				}
 				
-			}					
-			
+			}	
+
+			if(ver == 0)
+				strcpy(matrizP[recebe.linha], matriz[recebe.linha]);			
 		}
 		else	//se for letra ou caracter especial vai para a posição da matriz
 		{
 			//Fazer validações da matriz
 
+			//caso seja del
+			if(recebe.caracter == 74)
+				deleteServer(recebe.coluna, recebe.linha, recebe.caracter);
 
 			//Caso seja caracter
-
+			else
+				if(recebe.caracter >= 32 && recebe.caracter <= 126)
+					valida_textoServer(recebe.coluna, recebe.linha, recebe.caracter);
 
 			//Caso seja backspace
-
+			else
+				if(recebe.caracter == 7)
+					backspaceServer(recebe.coluna, recebe.linha, recebe.caracter);
 
 			//caso seja esc
+			else
+				if(recebe.caracter == 27)		
+					matriz[recebe.linha] = matrizP[recebe.linha];
 
-
-			//caso seja del
-
-
-			matriz[recebe.linha][recebe.coluna] = recebe.caracter;
-			fprintf(stderr,"%c\n",matriz[recebe.linha][recebe.coluna]);
-
+			fprintf(stderr, "%s\n", matriz[recebe.linha]);
 			//Correr todos os clientes e mandar os caracteres
 
 		}
@@ -460,6 +522,15 @@ void inicio_matriz()
 		matriz[i] = (char *) malloc(server1.MEDIT_MAXCOLUMNS * sizeof(char));
 
 	}
+
+	matrizP = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
+	
+	for(i = 0; i < server1.MEDIT_MAXLINES; i++)
+	{
+		
+		matrizP[i] = (char *) malloc(server1.MEDIT_MAXCOLUMNS * sizeof(char));
+
+	}
 	
 	for(i = 0; i < server1.MEDIT_MAXLINES; i++)
 	{
@@ -467,6 +538,7 @@ void inicio_matriz()
 		for(j = 0; j < server1.MEDIT_MAXCOLUMNS; j++)
 		{
 			matriz[i][j] = ' ';
+			matrizP[i][j] = ' ';
 		}
 		
 	}
@@ -485,16 +557,4 @@ void liberta_matriz()
 void liberta_users()
 {
 	free(users);
-}
-
-void backspaceServer(int x, int y){
-    int i;
-    char c;
-    if(x > 0){
-        for(i = x; i < server1.MEDIT_MAXCOLUMNS - 1; i++){
-            c = matriz[y][i + 1];
-			matriz[y][i] = c;
-        }
-		matriz[y][server1.MEDIT_MAXCOLUMNS - 1] = ' ';
-    }    
 }

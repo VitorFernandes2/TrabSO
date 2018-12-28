@@ -270,9 +270,41 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
         }
         if(ch == KEY_DC){
             delete_linha(posx,posy,server);
+
+            envio->linha = (*posy) - 5;
+            envio->coluna = (*posx) - 7;
+            envio->caracter = ch;
+            
+            c = mvinch((*posy),(*posx));
+
+            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+                endwin();
+                fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
+                exit(-1);
+            }
+
+            ne = write(fd, envio, sizeof(cliServ));
+            close(fd);
         }
-        if(ch == KEY_BACKSPACE){
+        if(ch == KEY_BACKSPACE){           
+
+            envio->linha = (*posy) - 5;
+            envio->coluna = (*posx) - 8;
+            envio->caracter = ch;
+            
+            c = mvinch((*posy),(*posx));
+
+            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+                endwin();
+                fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
+                exit(-1);
+            }
+
+            ne = write(fd, envio, sizeof(cliServ));
+            close(fd);
+
             backspace(posx,posy,server);
+
         }
         if(ch >= 32 && ch <= 126){ //Entrada de números,letras e alguns char especiais  
 
@@ -302,6 +334,19 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
         }
         if(ch==27){ //ESC
             escape(posy, linha, server);
+
+            envio->linha = (*posy) - 5;
+            envio->coluna = (*posx) - 8;
+            envio->caracter = ch;
+
+            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+                endwin();
+                fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
+                exit(-1);
+            }
+
+            ne = write(fd, envio, sizeof(cliServ));
+            close(fd);
         }
         else
             if(ch==10){
