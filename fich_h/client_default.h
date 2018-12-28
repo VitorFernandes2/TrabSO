@@ -19,7 +19,7 @@
 typedef struct{
 
     //Troca de dados
-    int estado;         //0 - Login  1 - Manda Frase
+    int estado;         //0 - Login  1 - Manda Frase 2 - Val. Linha 3 - Logout
     int pid;            //PID de cada ciente
     char nome[9];       //Nome de cada cliente
     int resposta;       //Saber se respondeu ou não

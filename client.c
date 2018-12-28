@@ -89,15 +89,18 @@ int main(int argc, char *argv[])
 	if(respostas.estado==0 && respostas.valID==1){
 		envio.estado=1;
 		documento(var_nome, &server, &respostas, &envio);
+
+		envio.estado=2;
+		envio.pid=getpid();
+		nw = write(fd_abrirE, &envio, sizeof(cliServ));
+
 	}
 	else{
 		printf("[ERRO] Esse cliente nao existe\n\n");
-	}
+	}	
 
 	//Destroi o pipe que usa para comunicação com o server
 	fim_pipe(myPID);
-
-	kill(pid_server, SIGUSR2);
 
 	exit(0);
 }

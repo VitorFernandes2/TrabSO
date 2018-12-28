@@ -254,6 +254,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
     envio->linha = (*posy) - 5;
     envio->pid = getpid();
     envio->estado = 2;
+    envio->caracter = ' ';
 
     if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
         endwin();

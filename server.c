@@ -77,7 +77,7 @@ int main(int argc, char *argv[]){
 	}
 
 	numPipes=contaPipes();
-	printf("%d", numPipes);
+	
 	for(k=0; k<numPipes; k++){
 		sprintf(complementaPipe, "%d", k);
 		pipe_ini(&fifoPull[k], complementaPipe);
