@@ -177,7 +177,7 @@ int main(int argc, char *argv[]){
 					}					
 					else						
 						if (strcmp(palavra1, "statistics")==0) {
-							printf("statistics\n");
+							statistics();
 						}
 						else
 							if(strcmp(palavra1, "users")==0){

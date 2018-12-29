@@ -99,7 +99,7 @@ int verifica_user(char *nomeFicheiro, int pid, char *username, char *exe, char *
 	}
 
 	while(fscanf(f,"%s",auxiliar)==1){
-		
+
 		if (strcmp(auxiliar, username)==0) {
 			
 			if (conta_users > 0) {
@@ -127,7 +127,7 @@ int verifica_user(char *nomeFicheiro, int pid, char *username, char *exe, char *
 						strcpy(users_nome[i], username);
 						users[conta_users] = pid;
 						conta_users++;		
-										
+
 					}
 
 				}
@@ -149,7 +149,7 @@ int verifica_user(char *nomeFicheiro, int pid, char *username, char *exe, char *
 			}			
 			
 		}
-		
+
 	}
 	fclose(f);
 	return 0;
@@ -291,6 +291,9 @@ void valida_textoServer(int x, int y, char c1)
 
     int i;
     char c;
+
+	printf("%d %d\n",y, x);
+
 	for(i = server1.MEDIT_MAXCOLUMNS - 1; i > x; i--)
 	{		
 		matriz[y][i] = matriz[y][i - 1];
@@ -416,10 +419,13 @@ void * le_pipe1 (void * arg){
 
 				//caso seja esc
 				else
-					if(recebe.caracter == 27)		
+					if(recebe.caracter == 27){
 						matriz[recebe.linha] = matrizP[recebe.linha];
+						ocupantesL[recebe.linha] = -1;
+					}		
+						
 
-				fprintf(stderr, "%s\n", matriz[recebe.linha]);
+				fprintf(stderr, "%s<-\n", matriz[recebe.linha]);
 				//Correr todos os clientes e mandar os caracteres
 
 			}
@@ -614,4 +620,125 @@ void liberta_users()
 	for(int i = 0; i < server1.MEDIT_MAXUSERS; i++)
     	free(users_nome[i]);
 	free(users_nome);
+}
+
+void statistics()
+{
+	int contaPalavras=0, contaLetras = 0, contaCar = 0, *num_letras, contaLinhas=0, ver;
+	char *letras, c;
+
+	letras = (char *) malloc(sizeof(char));
+	num_letras = (int *) malloc(sizeof(int));
+
+	for(int i = 0; i < server1.MEDIT_MAXLINES; i++)
+	{
+
+		for(int j; j < server1.MEDIT_MAXCOLUMNS; j++)
+		{
+
+			if((matriz[i][j] >= 'a' && matriz[i][j] <= 'z') || (matriz[i][j] >= 'A' && matriz[i][j] <= 'Z'))
+			{
+				contaLetras++;
+			}
+
+			if(contaCar == 0)
+			{			
+
+				contaCar++;
+				letras = (char *) realloc(letras, contaCar * sizeof(char));
+				num_letras = (int *) realloc(num_letras, contaCar * sizeof(int));
+				num_letras[contaCar - 1] = 1;
+				letras[contaCar - 1] = matriz[i][j];
+
+			}
+			else
+			{
+				ver=0;
+
+				for(int k = 0; k < contaCar; k++)
+				{
+					
+					if(matriz[i][j] == letras[k])
+					{
+						num_letras[k]++;
+						ver++;
+					}
+
+				}
+
+				if(ver==0)
+				{
+					
+					contaCar++;
+					letras = (char *) realloc(letras, contaCar * sizeof(char));
+					num_letras = (int *) realloc(num_letras, contaCar * sizeof(int));
+					num_letras[contaCar - 1] = 1;
+					letras[contaCar - 1] = matriz[i][j];
+
+				}
+
+			}
+
+			while(matriz[i][j] == ' ' || matriz[i][j] == '\0')
+				j++;
+
+			if(j<server1.MEDIT_MAXCOLUMNS)
+				if(matriz[i][j + 1] == ' ' || matriz[i][j + 1] == '\0')
+				{
+					contaPalavras++;
+				}
+
+		}
+
+		if(ocupantesL[i]!=-1)
+			contaLinhas++;
+
+	}
+
+	printf("\nEstatisticas:\n\n");
+	printf("Numero de palavras: %d\n", contaPalavras);
+	printf("Linhas em edição: %d\n", contaLinhas);
+	printf("Numero de caracteres: %d\n", contaLetras);
+	printf("5 caracteres mais comuns:\n");
+
+	int array[5]= {-1, -1, -1, -1, -1};
+	char arrayC[5] = {' ',' ',' ',' ',' '};
+
+	for(int k = 0; k < contaCar; k++)
+	{
+		
+		for(int j=0; j < 5; j++)
+		{
+
+			if(array[j] < num_letras[k])
+			{
+
+				for(int i = 4; i > j; i--)
+				{
+					
+					array[i] = array[i - 1];
+					arrayC[i] = arrayC[i - 1];
+
+				}
+
+				array[j] = num_letras[k];
+				arrayC[j] = letras[k];
+				
+				break;
+
+			}
+
+		}
+
+	}
+
+	for(int i = 0; i < 5; i++){
+		printf("%d - %c\n", i + 1, arrayC[i]);
+	}
+
+	printf("\nClique numa tecla para sair...");
+	c=getchar();
+
+	free(num_letras);
+	free(letras);
 }

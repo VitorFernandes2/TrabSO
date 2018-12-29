@@ -39,5 +39,6 @@ void mostraUsers();
 void inicio_matriz();
 void liberta_matriz();
 void liberta_users();
+void statistics();
 
 #endif
