@@ -23,6 +23,7 @@ typedef struct{
     int pid;            //PID de cada ciente
     char nome[9];       //Nome de cada cliente
     int resposta;       //Saber se respondeu ou não
+    char pipe_pull[10];
 
     //Troca de caracteres
     char caracter;     //Método para enviar dados ao servidor

@@ -24,6 +24,7 @@
 int conta_users = 0, *users, *contaClientes, *ocupantesL;
 char **users_nome, **matriz, **matrizP;
 static server server1;
+static pthread_mutex_t *lock;
 
 //ocupantesL está iniciada a -1
 //existem tantas lock como linhas (uma por cada)
@@ -305,7 +306,7 @@ void valida_textoServer(int x, int y, char c1)
 
 void * le_pipe1 (void * arg){
 	int fd, fd2, nr, nw, myPID;
-	int i=0, j, ver;
+	int i=0, j, ver, nPipe;
 	char palavra[200], c, myPipe[10];
 
 	fd= *(int*) arg;
@@ -316,146 +317,148 @@ void * le_pipe1 (void * arg){
 
 
 	while((nr = read(fd, &recebe, sizeof(cliServ)))>0){
-		j=0;
-		ver=0;
-		//Ver se o mutex está ocupado
-		//Se não estiver dá-se lock
-		//Senão retorna-se algo de modo ao cliente sair do modo edição
-		//POSSIVEL TRUQUE
-		//retornar o valor de 10 (enter no caracter) para ele entrar e sair logo
-
-		//Verifica se a linha está ocupada
 		
-		if(ocupantesL[recebe.linha] != recebe.pid && ocupantesL[recebe.linha] != -1){
-			
-			myPID=recebe.pid;
-			sprintf(myPipe, "%d", myPID);
+		//nPipe= atoi(recebe->pipe_pull);
+		/*if(pthread_mutex_trylock(&lock[nPipe]) != EBUSY){
+			pthread_mutex_lock(&lock[nPipe]);*/	
+			j=0;
+			ver=0;
+			//Ver se o mutex está ocupado
+			//Se não estiver dá-se lock
+			//Senão retorna-se algo de modo ao cliente sair do modo edição
+			//POSSIVEL TRUQUE
+			//retornar o valor de 10 (enter no caracter) para ele entrar e sair logo
 
-			if( (fd2=open(myPipe, O_WRONLY))==-1){
-				fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+			//Verifica se a linha está ocupada
+		
+			if(ocupantesL[recebe.linha] != recebe.pid && ocupantesL[recebe.linha] != -1){
+			
+				myPID=recebe.pid;
+				sprintf(myPipe, "%d", myPID);
+
+				if( (fd2=open(myPipe, O_WRONLY))==-1){
+					fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+				}
+
+				envia.estado=2;
+				envia.muda=1;
+				envia.perm=1;
+				nw = write(fd2,&envia,sizeof(servCli));
+
+				close(fd2);
+		
+			}
+			else
+			{
+				printf("ola\n");
+				printf("\n1->%d\n", ocupantesL[recebe.linha]);
+				ocupantesL[recebe.linha] = recebe.pid;
+				printf("\n2->%d\n", ocupantesL[recebe.linha]);	
 			}
 
-			envia.estado=2;
-			envia.muda=1;
-			strcpy(envia.fifo_serv,"0");
-			envia.perm=1;
-			nw = write(fd2,&envia,sizeof(servCli));
-
-			close(fd2);
-		
-		}
-		else
-		{
-			printf("ola\n");
-			printf("\n1->%d\n", ocupantesL[recebe.linha]);
-			ocupantesL[recebe.linha] = recebe.pid;
-			printf("\n2->%d\n", ocupantesL[recebe.linha]);	
-		}
-
 		
 
-		if(ocupantesL[recebe.linha] == recebe.pid)
-		{		
+			if(ocupantesL[recebe.linha] == recebe.pid)
+			{		
 
-			if(recebe.caracter=='\n')
-			{			
+				if(recebe.caracter=='\n')
+				{			
 				
-				for(i = 0; i < server1.MEDIT_MAXCOLUMNS; i++)
-				{
-					while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
-						i++;
-					}
-
-					if(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n')
+					for(i = 0; i < server1.MEDIT_MAXCOLUMNS; i++)
 					{
-						palavra[j]='\0';
-
-						verificaErros(palavra, &c);
-						if(c != '*'){
-							ver++;
-						} 
-
 						while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
 							i++;
 						}
-						i--;
-						j=0;
-					}				
-					else
-					{
-						palavra[j] = matriz[recebe.linha][i];
-						j++;
-					}
+
+						if(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n')
+						{
+							palavra[j]='\0';
+
+							verificaErros(palavra, &c);
+							if(c != '*'){
+								ver++;
+							} 
+
+							while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
+								i++;
+							}
+							i--;
+							j=0;
+						}				
+						else
+						{
+							palavra[j] = matriz[recebe.linha][i];
+							j++;
+						}
 					
-				}	
+					}	
 
-				if(ver == 0)
-				{
+					if(ver == 0)
+					{
 
-					strcpy(matrizP[recebe.linha], matriz[recebe.linha]);
-					ocupantesL[recebe.linha] = -1;
-
-				}
-								
-			}
-			else	//se for letra ou caracter especial vai para a posição da matriz
-			{
-				
-				//Fazer validações da matriz
-
-				//caso seja del
-				if(recebe.caracter == 74)
-					deleteServer(recebe.coluna, recebe.linha, recebe.caracter);
-
-				//Caso seja caracter
-				else
-					if(recebe.caracter >= 32 && recebe.caracter <= 126)
-						valida_textoServer(recebe.coluna, recebe.linha, recebe.caracter);
-
-				//Caso seja backspace
-				else
-					if(recebe.caracter == 7)
-						backspaceServer(recebe.coluna, recebe.linha, recebe.caracter);
-
-				//caso seja esc
-				else
-					if(recebe.caracter == 27){
-						matriz[recebe.linha] = matrizP[recebe.linha];
+						strcpy(matrizP[recebe.linha], matriz[recebe.linha]);
 						ocupantesL[recebe.linha] = -1;
-					}		
+
+					}
+								
+				}
+				else	//se for letra ou caracter especial vai para a posição da matriz
+				{
+				
+					//Fazer validações da matriz
+
+					//caso seja del
+					if(recebe.caracter == 74)
+						deleteServer(recebe.coluna, recebe.linha, recebe.caracter);
+
+					//Caso seja caracter
+					else
+						if(recebe.caracter >= 32 && recebe.caracter <= 126)
+							valida_textoServer(recebe.coluna, recebe.linha, recebe.caracter);
+
+					//Caso seja backspace
+					else
+						if(recebe.caracter == 7)
+							backspaceServer(recebe.coluna, recebe.linha, recebe.caracter);
+
+					//caso seja esc
+					else
+						if(recebe.caracter == 27){
+							matriz[recebe.linha] = matrizP[recebe.linha];
+							ocupantesL[recebe.linha] = -1;
+						}		
 						
 
-				fprintf(stderr, "%s<-\n", matriz[recebe.linha]);
-				//Correr todos os clientes e mandar os caracteres
+					fprintf(stderr, "%s<-\n", matriz[recebe.linha]);
+					//Correr todos os clientes e mandar os caracteres
 
-			}
+				}
 
-			myPID=recebe.pid;
-			sprintf(myPipe, "%d", myPID);
+				myPID=recebe.pid;
+				sprintf(myPipe, "%d", myPID);
 
-			if( (fd2=open(myPipe, O_WRONLY))==-1){
-				fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
-			}
+				if( (fd2=open(myPipe, O_WRONLY))==-1){
+					fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+				}
 			
 			
-			if(ver>0){
-				envia.estado=1;
-				envia.muda=1;
-				strcpy(envia.fifo_serv,"0");
-				envia.perm=0;
-				nw = write(fd2,&envia,sizeof(servCli));
-			}
-			else{
-				envia.estado=1;
-				envia.muda=1;
-				strcpy(envia.fifo_serv,"0");
-				envia.perm=1;
-				nw = write(fd2,&envia,sizeof(servCli));
-			}
+				if(ver>0){
+					envia.estado=1;
+					envia.muda=1;
+					envia.perm=0;
+					nw = write(fd2,&envia,sizeof(servCli));
+				}
+				else{
+					envia.estado=1;
+					envia.muda=1;
+					envia.perm=1;
+					nw = write(fd2,&envia,sizeof(servCli));
+				}
 
-			close(fd2);
-
-		}
+				close(fd2);
+			}
+			//pthread_mutex_unlock(&lock[nPipe]);
+		//}
 		
 	}
 
@@ -558,7 +561,7 @@ void mostraUsers()
 void inicio_matriz()
 {
 
-	int i, j;
+	int i, j, l;
 
 	users = (int *) malloc(server1.MEDIT_MAXUSERS * sizeof(int));
 
@@ -571,6 +574,13 @@ void inicio_matriz()
 
 		users[i] = -1;
 	}
+
+	lock = (pthread_mutex_t *) malloc(server1.MEDIT_NUM_PIPES * sizeof(pthread_mutex_t));
+
+	for(l=0; l < server1.MEDIT_NUM_PIPES; l++){
+		pthread_mutex_init(&lock[l], NULL);
+	}
+
 
 	ocupantesL = (int *) malloc(server1.MEDIT_MAXLINES * sizeof(int));
 

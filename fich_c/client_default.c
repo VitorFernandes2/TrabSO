@@ -256,7 +256,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
     envio->estado = 2;
     envio->caracter = '\0';
 
-    if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+    if( (fd=open(envio->pipe_pull, O_WRONLY))==-1){                    
         endwin();
         fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
         exit(-1);
@@ -310,7 +310,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
             
             c = mvinch((*posy),(*posx));
 
-            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+            if( (fd=open(envio->pipe_pull, O_WRONLY))==-1){                    
                 endwin();
                 fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
                 exit(-1);
@@ -327,7 +327,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
             
             c = mvinch((*posy),(*posx));
 
-            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+            if( (fd=open(envio->pipe_pull, O_WRONLY))==-1){                    
                 endwin();
                 fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
                 exit(-1);
@@ -353,7 +353,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 envio->coluna = (*posx) - 8;
                 envio->caracter = ch;
 
-                if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+                if( (fd=open(envio->pipe_pull, O_WRONLY))==-1){                    
                     endwin();
                     fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
                     exit(-1);
@@ -372,7 +372,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
             envio->coluna = (*posx) - 8;
             envio->caracter = ch;
 
-            if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+            if( (fd=open(envio->pipe_pull, O_WRONLY))==-1){                    
                 endwin();
                 fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
                 exit(-1);
@@ -390,7 +390,7 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 
                 c = mvinch((*posy),(*posx));
 
-                if( (fd=open(respostas->fifo_serv, O_WRONLY))==-1){                    
+                if( (fd=open(envio->pipe_pull, O_WRONLY))==-1){                    
                     endwin();
                     fprintf(stderr, "\nErro ao abir a pipe de escrita do cliente\n");
                     exit(-1);

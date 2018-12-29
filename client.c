@@ -84,12 +84,12 @@ int main(int argc, char *argv[])
 	while(respostas.muda==0){ 	//Espera pela resposta do servidor
 	} 
 
+	strcpy(envio.pipe_pull, respostas.fifo_serv);
 	pid_server = respostas.pid;
 
 	if(respostas.estado==0 && respostas.valID==1){
 		envio.estado=1;
 		documento(var_nome, &server, &respostas, &envio);
-
 		envio.estado=2;
 		envio.pid=getpid();
 		nw = write(fd_abrirE, &envio, sizeof(cliServ));
