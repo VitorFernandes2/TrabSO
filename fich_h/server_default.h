@@ -10,7 +10,7 @@
 
 typedef struct{
     int pid;        //PID do server
-    int estado;     //0 - Login  1 - Manda Frase 2 - Val. Linha 3 - Logout
+    int estado;     //0 - Login  1 - Manda Frase 2 - Val. Linha 3 - Logout 4 - atualiza Linha
     int muda;       //saber se já respondeu
     int perm;       //Saber se a linha está bem escrita (1) ou não (0)
     char resposta[45]; //Frase de resposta
@@ -18,6 +18,7 @@ typedef struct{
     int valID;      // 0 - Nval   1 - Val
     int linha;      //linha para colocar a frase
     int coluna;
+    char c;
 } servCli;
 
 int contaPipes();

@@ -415,24 +415,134 @@ void * le_pipe1 (void * arg){
 					//Fazer validações da matriz
 
 					//caso seja del
-					if(recebe.caracter == 74)
+					if(recebe.caracter == 74){
 						deleteServer(recebe.coluna, recebe.linha, recebe.caracter);
+
+						for(int k = 0; k < server1.MEDIT_MAXUSERS; k++){
+
+							if(users[k] != recebe.pid && users[k] != -1)
+							{
+								
+								sprintf(myPipe, "%d", users[k]);
+								printf("%s\n", myPipe);
+								if( (fd2=open(myPipe, O_WRONLY))==-1){
+									fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+								}
+								
+								envia.estado = 4;
+								envia.linha = recebe.linha;
+								envia.coluna = recebe.coluna;
+								envia.c = recebe.caracter;
+
+								nw = write(fd2,&envia,sizeof(servCli));
+								
+
+								close(fd2);
+
+							}
+							
+						}
+
+					}
+						
 
 					//Caso seja caracter
 					else
-						if(recebe.caracter >= 32 && recebe.caracter <= 126)
+						if(recebe.caracter >= 32 && recebe.caracter <= 126){
+
 							valida_textoServer(recebe.coluna, recebe.linha, recebe.caracter);
+
+							for(int k = 0; k < server1.MEDIT_MAXUSERS; k++){
+
+								if(users[k] != recebe.pid && users[k] != -1)
+								{
+									
+									sprintf(myPipe, "%d", users[k]);
+									printf("%s\n", myPipe);
+									if( (fd2=open(myPipe, O_WRONLY))==-1){
+										fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+									}
+									
+									envia.estado = 4;
+									envia.linha = recebe.linha;
+									envia.coluna = recebe.coluna;
+									envia.c = recebe.caracter;
+
+									nw = write(fd2,&envia,sizeof(servCli));
+									
+
+									close(fd2);
+
+								}
+								
+							}							
+
+						}
+							
 
 					//Caso seja backspace
 					else
 						if(recebe.caracter == 7)
+						{
 							backspaceServer(recebe.coluna, recebe.linha, recebe.caracter);
+
+							for(int k = 0; k < server1.MEDIT_MAXUSERS; k++){
+
+								if(users[k] != recebe.pid && users[k] != -1)
+								{
+									
+									sprintf(myPipe, "%d", users[k]);
+									printf("%s\n", myPipe);
+									if( (fd2=open(myPipe, O_WRONLY))==-1){
+										fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+									}
+									
+									envia.estado = 4;
+									envia.linha = recebe.linha;
+									envia.coluna = recebe.coluna;
+									envia.c = recebe.caracter;
+
+									nw = write(fd2,&envia,sizeof(servCli));
+									
+
+									close(fd2);
+
+								}
+								
+							}
+						}
+							
 
 					//caso seja esc
 					else
 						if(recebe.caracter == 27){
 							matriz[recebe.linha] = matrizP[recebe.linha];
 							ocupantesL[recebe.linha] = -1;
+
+							for(int k = 0; k < server1.MEDIT_MAXUSERS; k++){
+
+								if(users[k] != recebe.pid && users[k] != -1)
+								{
+									
+									sprintf(myPipe, "%d", users[k]);
+									printf("%s\n", myPipe);
+									if( (fd2=open(myPipe, O_WRONLY))==-1){
+										fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+									}
+									
+									envia.estado = 4;
+									envia.linha = recebe.linha;
+									envia.coluna = recebe.coluna;
+									envia.c = recebe.caracter;
+
+									nw = write(fd2,&envia,sizeof(servCli));
+									
+
+									close(fd2);
+
+								}
+								
+							}
 						}		
 						
 
@@ -592,19 +702,12 @@ void inicio_matriz()
 	ocupantesL = (int *) malloc(server1.MEDIT_MAXLINES * sizeof(int));
 
 	matriz = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
+	matrizP = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
 
 	for(i = 0; i < server1.MEDIT_MAXLINES; i++)
 	{
 		
 		matriz[i] = (char *) malloc(server1.MEDIT_MAXCOLUMNS * sizeof(char));
-
-	}
-
-	matrizP = (char **) malloc(server1.MEDIT_MAXLINES * sizeof(char *));
-	
-	for(i = 0; i < server1.MEDIT_MAXLINES; i++)
-	{
-		
 		matrizP[i] = (char *) malloc(server1.MEDIT_MAXCOLUMNS * sizeof(char));
 
 	}

@@ -20,6 +20,10 @@
 #include "../fich_h/client_default.h"
 /*------------------------------*/
 
+int xpos, ypos;
+char **matriz, **matrizP;
+server *server1;
+
 void sig_handler(int signo)
 {
     char myPID[10];
@@ -30,6 +34,96 @@ void sig_handler(int signo)
         fim_pipe(myPID);
     }    
     exit(0);
+}
+
+void valida_textoClient(int x, int y, char c1)
+{
+
+    int i;
+    char c;
+
+    if(matriz[y][server1->MEDIT_MAXCOLUMNS - 1] == ' ')
+    {
+
+        for(i = server1->MEDIT_MAXCOLUMNS - 1; i > x; i--)
+        {		
+
+            matriz[y][i] = matriz[y][i - 1];
+            mvprintw(y + 5, i + 7, "%c", matriz[y][i]);
+            move_cursor(&xpos, &ypos);
+            refresh();
+            
+        }
+        
+        matriz[y][x] = c1;
+        mvprintw(y + 5, x + 7, "%c", matriz[y][x]);
+        move_cursor(&xpos, &ypos);
+        refresh();
+
+    }
+        
+}
+
+void deleteClient(int x, int y)
+{
+
+	int i;
+
+	for(i = x + 1; i < server1->MEDIT_MAXCOLUMNS - 1; i++)
+	{
+
+        matriz[y][i] = matriz[y][i + 1];
+        mvprintw(y + 5, i + 7, "%c", matriz[y][i]);
+        move_cursor(&xpos, &ypos);
+        refresh();		
+		
+	}
+
+    matriz[y][i] = ' ';
+    mvprintw(y + 5, i + 7, "%c", matriz[y][i]);
+    move_cursor(&xpos, &ypos);
+    refresh();
+
+}
+
+void backspaceClient(int x, int y)
+{
+
+    int i;
+    
+	if(x > -1){
+        
+        for(i = x; i < server1->MEDIT_MAXCOLUMNS - 1; i++)
+        {
+
+            matriz[y][i] = matriz[y][i + 1];
+            mvprintw(y + 5, i + 7, "%c", matriz[y][i]);
+            move_cursor(&xpos, &ypos);
+            refresh();		
+            
+        }
+
+        matriz[y][i] = ' ';
+        mvprintw(y + 5, i + 7, "%c", matriz[y][i]);
+        move_cursor(&xpos, &ypos);
+        refresh();
+
+    }
+
+}
+
+void escClient(int y)
+{
+
+    for(int i = 0; i < server1->MEDIT_MAXCOLUMNS - 1; i++)
+    {
+
+        mvprintw(y + 5, i + 7, "%c", matriz[y][i]);
+        move_cursor(&xpos, &ypos);
+        refresh();
+
+    }
+
 }
 
 void * le_pipe_Cli (void * arg){
@@ -47,7 +141,46 @@ void * le_pipe_Cli (void * arg){
 	}
 	
 	while((nr = read(fd, recebe, sizeof(servCli)))>0){
+        if(recebe->estado == 4)
+        {
+            //caso seja del
+            if(recebe->c == 74){
+                deleteClient(recebe->coluna, recebe->linha);
+            }
+                
+
+            //Caso seja caracter
+            else
+                if(recebe->c >= 32 && recebe->c <= 126){
+                    valida_textoClient(recebe->coluna, recebe->linha, recebe->c);
+                }
+                    
+
+            //Caso seja backspace
+            else
+                if(recebe->c == 7)
+                {
+                    backspaceClient(recebe->coluna, recebe->linha);
+                }
+                    
+
+            //caso seja esc
+            else
+                if(recebe->c == 27){
+                    matriz[recebe->linha] = matrizP[recebe->linha];
+                    escClient(recebe->linha);
+                }
+
+            //caso seja enter
+            else
+                if(recebe->c == 10){
+                    matrizP[recebe->linha] = matriz[recebe->linha];
+                }
+
+        }
+
    	}
+
 }
 
 void pipes_ini(cliServ *client, servCli *serv, int *fd_abrirE, int *nw, char *myPID, int *myFifo){
@@ -77,6 +210,30 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
     //A var. token serve para alternar entre modo edição de linha
     //e modo navegação de texto
 
+    server1 = server;
+
+    matriz = (char **) malloc(server->MEDIT_MAXLINES * sizeof(char *));
+	matrizP = (char **) malloc(server->MEDIT_MAXLINES * sizeof(char *));
+
+	for(int i = 0; i < server->MEDIT_MAXLINES; i++)
+	{
+		
+		matriz[i] = (char *) malloc(server->MEDIT_MAXCOLUMNS * sizeof(char));
+		matrizP[i] = (char *) malloc(server->MEDIT_MAXCOLUMNS * sizeof(char));
+
+	}
+	
+	for(int i = 0; i < server->MEDIT_MAXLINES; i++)
+	{
+		
+		for(int j = 0; j < server->MEDIT_MAXCOLUMNS; j++)
+		{
+			matriz[i][j] = ' ';
+			matrizP[i][j] = ' ';
+		}
+
+	}
+
     initscr();
     clear();
     noecho();
@@ -95,7 +252,8 @@ void documento(char *user, server *server, servCli *respostas, cliServ *envio){
 
     do{
         signal(SIGUSR1,sig_handler);
-
+        xpos = posx;
+        ypos = posy;
         ch = getch();
         posx = 7;
 
@@ -288,6 +446,8 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
     }
     apanha_linha(posy, linha, server);
     do{
+        xpos = (*posx);
+        ypos = (*posy);
         ch = getch();
         if(ch == KEY_LEFT){
             if((*posx) > 7){
@@ -420,6 +580,8 @@ void teclas(int *posx, int *posy, server *server, servCli *respostas, cliServ *e
                 close(fd2);              
             }
     }while(ch != 27 && ch != 10);
+    apanha_linha(posy, matriz[(*posy) - 5], server);
+    apanha_linha(posy, matrizP[(*posy) - 5], server);
 }
 
 void move_cursor(int *posx, int *posy){
