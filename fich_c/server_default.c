@@ -198,9 +198,14 @@ void settings(){
 void kill_thread(){
 	int i;
 
-	for(i=0; i < conta_users; i++){
+	for(i=0; i < server1.MEDIT_MAXUSERS; i++){
+
 		if(users[i] != -1)
+		{
 			kill(users[i], SIGUSR1);
+			users[i]=-1;
+		}
+			
 	}
 	
 	pthread_exit(0);
@@ -659,15 +664,19 @@ void mudaMainPipe(char *arg)
 
 void mostraUsers()
 {
-	int i;
+	int i, conta = 1;
 	char c;
 
 	printf("Lista de Utilizadores: \n\n");
 	
-	for(i = 0; i < conta_users; i++)
+	for(int j = 0; j < server1.MEDIT_MAXUSERS; j++)
 	{
 		
-		printf("Utilizador #%d: %s\n", i + 1, users_nome[i]);
+		if(users[j] != -1)
+		{
+			printf("Utilizador #%d: %s\n", conta, users_nome[j]);
+			conta++;
+		}
 		
 	}
 
