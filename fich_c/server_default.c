@@ -128,6 +128,8 @@ int verifica_user(char *nomeFicheiro, int pid, char *username, char *exe, char *
 						strcpy(users_nome[i], username);
 						users[conta_users] = pid;
 						conta_users++;		
+						fclose(f);
+						return 1;
 
 					}
 
@@ -309,6 +311,9 @@ void * le_pipe1 (void * arg){
 	int i=0, j, ver, nPipe;
 	char palavra[200], c, myPipe[10];
 
+	for(int k=0; k<200; k++)
+		palavra[k]=' ';
+
 	fd= *(int*) arg;
 	servCli envia;
     	cliServ recebe;
@@ -362,15 +367,15 @@ void * le_pipe1 (void * arg){
 			{		
 
 				if(recebe.caracter=='\n')
-				{			
-				
-					for(i = 0; i < server1.MEDIT_MAXCOLUMNS; i++)
-					{
-						
-						if(i == 0)
-							while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
-								i++;
-							}
+				{	
+					i=0;
+
+					while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
+						i++;
+					}
+
+					for(; i < server1.MEDIT_MAXCOLUMNS; i++)
+					{						
 
 						if(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n')
 						{
