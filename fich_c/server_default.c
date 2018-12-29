@@ -366,9 +366,11 @@ void * le_pipe1 (void * arg){
 				
 					for(i = 0; i < server1.MEDIT_MAXCOLUMNS; i++)
 					{
-						while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
-							i++;
-						}
+						
+						if(i == 0)
+							while(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n'){
+								i++;
+							}
 
 						if(matriz[recebe.linha][i] == ' ' || matriz[recebe.linha][i] == '\n')
 						{
