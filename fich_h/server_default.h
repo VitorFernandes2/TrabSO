@@ -17,8 +17,8 @@ typedef struct{
     char fifo_serv[10];//FIFO do servidor associado
     int valID;      // 0 - Nval   1 - Val
     int linha;      //linha para colocar a frase
-    int coluna;
-    char c;
+    int coluna;     //coluna para colocar na frase
+    char c;	    //caracter para colocar na frase
 } servCli;
 
 int contaPipes();
@@ -41,5 +41,7 @@ void inicio_matriz();
 void liberta_matriz();
 void liberta_users();
 void statistics();
+void save();
+char **load();
 
 #endif

@@ -871,3 +871,83 @@ void statistics()
 	free(num_letras);
 	free(letras);
 }
+
+
+
+void save(){
+    
+    FILE *fich;
+    int i, j;
+    
+    
+    if((fich=fopen("info.txt", "w"))==NULL){           
+        printf("\n\tErro ao abrir o ficheiro de texto.");
+        return;
+    }
+    for(i=0; i<server1.MEDIT_MAXLINES; i++){    
+	for(j=0; j<server1.MEDIT_MAXCOLUMNS; j++){                          
+        	fprintf(fich,"%c", matrizP[i][j]);
+	}
+	fprintf(fich, "\n");
+    }
+    fclose(fich);
+}
+
+char **load(){
+
+    char **m;
+    m = matrizP;
+    FILE *fich;
+    char myPipe[10];
+    servCli envia;
+    int fd, nw;
+
+    
+
+    if((fich=fopen("info.txt", "r"))==NULL){           
+        printf("\nErro ao abrir o ficheiro de escrita para leitura.");
+        return m;
+    }
+    
+    m = malloc(sizeof(char)*(server1.MEDIT_MAXLINES));
+    for(int i=0;i<server1.MEDIT_MAXCOLUMNS;i++){
+        m[i]=(char *)malloc(sizeof(char)*(server1.MEDIT_MAXCOLUMNS));
+    }                           
+    if (m == NULL){
+        fprintf(stderr, "\nErro na reserva de memoria");
+        m = matrizP;
+        fclose(fich);
+        return m;
+    }
+	
+   
+    for(int i=0; i<server1.MEDIT_MAXLINES; i++){
+	for(int j=0; j<server1.MEDIT_MAXCOLUMNS; j++){
+		while((fscanf(fich, "%c", &m[i][j]))== 1){
+		}
+	}
+        
+    }
+
+	
+    for(int i=0; i<server1.MEDIT_MAXLINES; i++){
+	for(int j=0; j<server1.MEDIT_MAXCOLUMNS; j++){
+		for(int k = 0; k < server1.MEDIT_MAXUSERS; k++){
+			if(users[k] != -1){
+				sprintf(myPipe, "%d", users[k]);
+				if( (fd=open(myPipe, O_WRONLY))==-1){
+					fprintf(stderr, "\nErro ao abrir a pipe de leitura\n");
+				}
+				envia.estado = 4;
+				envia.linha = i+4;
+				envia.coluna = j+6;
+				envia.c = m[i][j];
+				nw = write(fd,&envia,sizeof(servCli));
+				close(fd);
+			}						
+    		}
+	}  
+    }
+    fclose(fich);
+    return m;
+}

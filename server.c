@@ -165,11 +165,11 @@ int main(int argc, char *argv[]){
 		}
 		else
 			if(strcmp(palavra1, "load")==0){
-				printf("load\n");
+				load();
 			}
 			else
 				if(strcmp(palavra1, "save")==0){
-					printf("save\n");
+					save();
 				}
 				else
 					if(strcmp(palavra1, "free")==0){
