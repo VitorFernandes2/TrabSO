@@ -42,6 +42,8 @@ void liberta_matriz();
 void liberta_users();
 void statistics();
 void save();
-char **load();
+void load();
+void fazFree(int num);
+void text();
 
 #endif

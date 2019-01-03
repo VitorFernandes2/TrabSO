@@ -109,55 +109,23 @@ int main(int argc, char *argv[]){
 		printf("\n\n%s@%s:~$ ",user,hostname);
 		fflush(stdin);
 		fflush(stdout);
-		fgets(cline, 50, stdin);
+		scanf("%49s", cline);
 
-		i = 0;
-
-		while(cline[i] == ' ' || cline[i] == '\t')
-		{
-			i++;
+		for(i=0; cline[i]==' '; i++);
+		
+		for(e=0; cline[i]!='\0' && cline[i]!=' '; i++, e++){
+			palavra1[e]=cline[i];
 		}
+		palavra1[e]='\0';
 
-		for(fase = 0, e = 0; cline[i] != '\0'; i++){
-			
-			if(fase == 0)
-			{
-				
-				if (cline[i] != ' '  && cline[i] != '\t' && cline[i] != '\n') {
-					palavra1[e] = cline[i];
-					palavra1[e + 1] = '\0';
-					e++;
-				}
-				else
-				{
-					fase++;
-					e = 0;
-				}
-
-			}			
-			else
-			{
-
-				if (cline[i] != ' ' && cline[i] != '\t' && cline[i] != '\n') {
-					palavra2[e] = cline[i];
-					e++;
-				}
-				else
-				{
-					palavra2[e] = '\0';
-					e = 0;
-				}
-
-			}
-
-			while(cline[i+1] == ' ' || cline[i+1] == '\t')
-			{
-				i++;
-			}			
-
+		if(cline[i]!=' '){
+		
+			for(; cline[i]==' '; i++);
+			for(e=0; cline[i]!='\0'; i++, e++)
+				palavra2[e]=cline[i];
+			palavra2[e]='\0';
 		}
-		palavra1[19]='\0';
-		palavra2[19]='\0';
+		
 		
 		if(strcmp(palavra1, "settings")==0){
 			settings();
@@ -173,7 +141,7 @@ int main(int argc, char *argv[]){
 				}
 				else
 					if(strcmp(palavra1, "free")==0){
-						printf("free\n");
+						fazFree(atoi(palavra2));
 					}					
 					else						
 						if (strcmp(palavra1, "statistics")==0) {
@@ -183,11 +151,17 @@ int main(int argc, char *argv[]){
 							if(strcmp(palavra1, "users")==0){
 								mostraUsers();
 								fflush(stdout);
-							}					
-							else
-								if(strcmp(palavra1, "shutdown")!=0){			
-									printf("%s: comando nao disponivel\n", palavra1);	
+							}
+							else{
+								if(strcmp(palavra1, "text")==0){
+									text();	
+								}			
+								else{
+									if(strcmp(palavra1, "shutdown")!=0){			
+										printf("%s: comando nao disponivel\n", palavra1);	
+									}
 								}
+		}
 
 	}while(strcmp(palavra1, "shutdown")!=0);
 
